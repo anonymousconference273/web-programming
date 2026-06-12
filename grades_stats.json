@@ -1,0 +1,2935 @@
+{
+  "generated": "2026-06-11T20:06:05.880831",
+  "n_students": 38,
+  "n_llm": 15,
+  "n_passed": 0,
+  "n_failed": 38,
+  "assignments": [
+    {
+      "name": "Wall",
+      "difficulty": "easy",
+      "n_submitted": 0,
+      "n_total": 38,
+      "n_trouble": 0,
+      "n_lesson_trouble": 0,
+      "n_ai": 30,
+      "n_ai_strong": 0,
+      "n_ai_upper": 17,
+      "n_artefact": 38,
+      "avg_grade": null,
+      "pass_rate": 0.0,
+      "trouble_rate": null,
+      "ai_rate": null,
+      "follow_avg": 57.431579,
+      "odds_ratio": null,
+      "fisher_p": null,
+      "n_followed": 19,
+      "scatter": [],
+      "ai_trouble": 0,
+      "ai_pass": 0,
+      "no_ai_trouble": 0,
+      "no_ai_pass": 0,
+      "ai_avg_grade": null,
+      "no_ai_avg_grade": null,
+      "lower": "wall",
+      "n_artefact_valid": 38,
+      "any_artefact_fired": 30,
+      "any_artefact_rate": 0.789474,
+      "n_ai_high": 0,
+      "ai_high_rate": 0.0,
+      "artefacts": [
+        {
+          "key": "color",
+          "label": "Color codes not from video",
+          "severity": "medium",
+          "n_answered": 38,
+          "n_fired": 9,
+          "hit_rate": 0.236842,
+          "fired_trouble": 0,
+          "fired_ok": 9,
+          "ok_trouble": 0,
+          "safe_ok": 29,
+          "odds_ratio": null,
+          "fisher_p": 1.0,
+          "fired_avg_grade": null,
+          "ok_avg_grade": null,
+          "fired_ids": [
+            "27",
+            "35",
+            "40",
+            "41",
+            "46",
+            "58",
+            "67",
+            "77",
+            "82"
+          ],
+          "llm_hit_rate": 1.0,
+          "llm_n_fired": 7,
+          "llm_n_answered": 7
+        },
+        {
+          "key": "report",
+          "label": "Report is AI-like",
+          "severity": "medium",
+          "n_answered": 38,
+          "n_fired": 9,
+          "hit_rate": 0.236842,
+          "fired_trouble": 0,
+          "fired_ok": 9,
+          "ok_trouble": 0,
+          "safe_ok": 29,
+          "odds_ratio": null,
+          "fisher_p": 1.0,
+          "fired_avg_grade": null,
+          "ok_avg_grade": null,
+          "fired_ids": [
+            "3",
+            "11",
+            "13",
+            "24",
+            "35",
+            "46",
+            "47",
+            "58",
+            "72"
+          ],
+          "llm_hit_rate": 0.857143,
+          "llm_n_fired": 6,
+          "llm_n_answered": 7
+        },
+        {
+          "key": "extra",
+          "label": "Unexpected row structure",
+          "severity": "medium",
+          "n_answered": 38,
+          "n_fired": 9,
+          "hit_rate": 0.236842,
+          "fired_trouble": 0,
+          "fired_ok": 9,
+          "ok_trouble": 0,
+          "safe_ok": 29,
+          "odds_ratio": null,
+          "fisher_p": 1.0,
+          "fired_avg_grade": null,
+          "ok_avg_grade": null,
+          "fired_ids": [
+            "24",
+            "27",
+            "29",
+            "30",
+            "41",
+            "58",
+            "67",
+            "72",
+            "77"
+          ],
+          "llm_hit_rate": 0.0,
+          "llm_n_fired": 0,
+          "llm_n_answered": 7
+        },
+        {
+          "key": "pattern",
+          "label": "Incorrect brick pattern",
+          "severity": "low",
+          "n_answered": 38,
+          "n_fired": 19,
+          "hit_rate": 0.5,
+          "fired_trouble": 0,
+          "fired_ok": 19,
+          "ok_trouble": 0,
+          "safe_ok": 19,
+          "odds_ratio": null,
+          "fisher_p": 1.0,
+          "fired_avg_grade": null,
+          "ok_avg_grade": null,
+          "fired_ids": [
+            "3",
+            "8",
+            "11",
+            "13",
+            "20",
+            "24",
+            "27",
+            "35",
+            "41",
+            "46",
+            "49",
+            "50",
+            "55",
+            "58",
+            "65",
+            "67",
+            "69",
+            "74",
+            "77"
+          ],
+          "llm_hit_rate": 0.714286,
+          "llm_n_fired": 5,
+          "llm_n_answered": 7
+        },
+        {
+          "key": "illusion",
+          "label": "Illusion not mentioned",
+          "severity": "low",
+          "n_answered": 38,
+          "n_fired": 26,
+          "hit_rate": 0.684211,
+          "fired_trouble": 0,
+          "fired_ok": 26,
+          "ok_trouble": 0,
+          "safe_ok": 12,
+          "odds_ratio": null,
+          "fisher_p": 1.0,
+          "fired_avg_grade": null,
+          "ok_avg_grade": null,
+          "fired_ids": [
+            "3",
+            "8",
+            "11",
+            "13",
+            "24",
+            "27",
+            "29",
+            "35",
+            "40",
+            "41",
+            "44",
+            "46",
+            "47",
+            "49",
+            "58",
+            "60",
+            "61",
+            "65",
+            "67",
+            "69",
+            "70",
+            "71",
+            "72",
+            "74",
+            "77",
+            "82"
+          ],
+          "llm_hit_rate": 1.0,
+          "llm_n_fired": 7,
+          "llm_n_answered": 7
+        }
+      ]
+    },
+    {
+      "name": "Chess",
+      "difficulty": "easy",
+      "n_submitted": 0,
+      "n_total": 38,
+      "n_trouble": 0,
+      "n_lesson_trouble": 6,
+      "n_ai": 33,
+      "n_ai_strong": 4,
+      "n_ai_upper": 19,
+      "n_artefact": 38,
+      "avg_grade": null,
+      "pass_rate": 0.0,
+      "trouble_rate": null,
+      "ai_rate": null,
+      "follow_avg": 88.403226,
+      "odds_ratio": null,
+      "fisher_p": null,
+      "n_followed": 31,
+      "scatter": [],
+      "ai_trouble": 0,
+      "ai_pass": 0,
+      "no_ai_trouble": 0,
+      "no_ai_pass": 0,
+      "ai_avg_grade": null,
+      "no_ai_avg_grade": null,
+      "lower": "chess",
+      "n_artefact_valid": 38,
+      "any_artefact_fired": 33,
+      "any_artefact_rate": 0.868421,
+      "n_ai_high": 4,
+      "ai_high_rate": 0.105263,
+      "artefacts": [
+        {
+          "key": "start",
+          "label": "Starter code ignored",
+          "severity": "high",
+          "n_answered": 38,
+          "n_fired": 1,
+          "hit_rate": 0.026316,
+          "fired_trouble": 0,
+          "fired_ok": 1,
+          "ok_trouble": 0,
+          "safe_ok": 37,
+          "odds_ratio": null,
+          "fisher_p": 1.0,
+          "fired_avg_grade": null,
+          "ok_avg_grade": null,
+          "fired_ids": [
+            "27"
+          ],
+          "llm_hit_rate": 0.071429,
+          "llm_n_fired": 1,
+          "llm_n_answered": 14
+        },
+        {
+          "key": "method",
+          "label": "Method 8 is mentioned",
+          "severity": "high",
+          "n_answered": 38,
+          "n_fired": 4,
+          "hit_rate": 0.105263,
+          "fired_trouble": 0,
+          "fired_ok": 4,
+          "ok_trouble": 0,
+          "safe_ok": 34,
+          "odds_ratio": null,
+          "fisher_p": 1.0,
+          "fired_avg_grade": null,
+          "ok_avg_grade": null,
+          "fired_ids": [
+            "5",
+            "27",
+            "35",
+            "71"
+          ],
+          "llm_hit_rate": 1.0,
+          "llm_n_fired": 14,
+          "llm_n_answered": 14
+        },
+        {
+          "key": "white",
+          "label": "White-on-white not mentioned",
+          "severity": "medium",
+          "n_answered": 38,
+          "n_fired": 18,
+          "hit_rate": 0.473684,
+          "fired_trouble": 0,
+          "fired_ok": 18,
+          "ok_trouble": 0,
+          "safe_ok": 20,
+          "odds_ratio": null,
+          "fisher_p": 1.0,
+          "fired_avg_grade": null,
+          "ok_avg_grade": null,
+          "fired_ids": [
+            "5",
+            "8",
+            "13",
+            "24",
+            "27",
+            "40",
+            "45",
+            "46",
+            "49",
+            "50",
+            "60",
+            "65",
+            "67",
+            "69",
+            "71",
+            "72",
+            "74",
+            "77"
+          ],
+          "llm_hit_rate": 1.0,
+          "llm_n_fired": 14,
+          "llm_n_answered": 14
+        },
+        {
+          "key": "pieces",
+          "label": "Incorrect piece pattern",
+          "severity": "low",
+          "n_answered": 38,
+          "n_fired": 9,
+          "hit_rate": 0.236842,
+          "fired_trouble": 0,
+          "fired_ok": 9,
+          "ok_trouble": 0,
+          "safe_ok": 29,
+          "odds_ratio": null,
+          "fisher_p": 1.0,
+          "fired_avg_grade": null,
+          "ok_avg_grade": null,
+          "fired_ids": [
+            "5",
+            "24",
+            "29",
+            "35",
+            "49",
+            "58",
+            "61",
+            "71",
+            "80"
+          ],
+          "llm_hit_rate": 0.714286,
+          "llm_n_fired": 10,
+          "llm_n_answered": 14
+        },
+        {
+          "key": "extra",
+          "label": "Unexpected modifications",
+          "severity": "low",
+          "n_answered": 38,
+          "n_fired": 8,
+          "hit_rate": 0.210526,
+          "fired_trouble": 0,
+          "fired_ok": 8,
+          "ok_trouble": 0,
+          "safe_ok": 30,
+          "odds_ratio": null,
+          "fisher_p": 1.0,
+          "fired_avg_grade": null,
+          "ok_avg_grade": null,
+          "fired_ids": [
+            "20",
+            "24",
+            "27",
+            "40",
+            "46",
+            "49",
+            "67",
+            "71"
+          ],
+          "llm_hit_rate": 0.571429,
+          "llm_n_fired": 8,
+          "llm_n_answered": 14
+        },
+        {
+          "key": "style",
+          "label": "Changed board color",
+          "severity": "low",
+          "n_answered": 38,
+          "n_fired": 27,
+          "hit_rate": 0.710526,
+          "fired_trouble": 0,
+          "fired_ok": 27,
+          "ok_trouble": 0,
+          "safe_ok": 11,
+          "odds_ratio": null,
+          "fisher_p": 1.0,
+          "fired_avg_grade": null,
+          "ok_avg_grade": null,
+          "fired_ids": [
+            "3",
+            "4",
+            "5",
+            "8",
+            "11",
+            "13",
+            "18",
+            "24",
+            "27",
+            "30",
+            "35",
+            "40",
+            "41",
+            "45",
+            "46",
+            "47",
+            "50",
+            "55",
+            "60",
+            "61",
+            "65",
+            "69",
+            "70",
+            "71",
+            "72",
+            "74",
+            "77"
+          ],
+          "llm_hit_rate": 0.857143,
+          "llm_n_fired": 12,
+          "llm_n_answered": 14
+        }
+      ]
+    },
+    {
+      "name": "Sorting",
+      "difficulty": "hard",
+      "n_submitted": 0,
+      "n_total": 38,
+      "n_trouble": 0,
+      "n_lesson_trouble": 2,
+      "n_ai": 34,
+      "n_ai_strong": 21,
+      "n_ai_upper": 33,
+      "n_artefact": 38,
+      "avg_grade": null,
+      "pass_rate": 0.0,
+      "trouble_rate": null,
+      "ai_rate": null,
+      "follow_avg": 96.446875,
+      "odds_ratio": null,
+      "fisher_p": null,
+      "n_followed": 32,
+      "scatter": [],
+      "ai_trouble": 0,
+      "ai_pass": 0,
+      "no_ai_trouble": 0,
+      "no_ai_pass": 0,
+      "ai_avg_grade": null,
+      "no_ai_avg_grade": null,
+      "lower": "sorting",
+      "n_artefact_valid": 38,
+      "any_artefact_fired": 34,
+      "any_artefact_rate": 0.894737,
+      "n_ai_high": 21,
+      "ai_high_rate": 0.552632,
+      "artefacts": [
+        {
+          "key": "start",
+          "label": "Starter code ignored",
+          "severity": "high",
+          "n_answered": 38,
+          "n_fired": 3,
+          "hit_rate": 0.078947,
+          "fired_trouble": 0,
+          "fired_ok": 3,
+          "ok_trouble": 0,
+          "safe_ok": 35,
+          "odds_ratio": null,
+          "fisher_p": 1.0,
+          "fired_avg_grade": null,
+          "ok_avg_grade": null,
+          "fired_ids": [
+            "27",
+            "71",
+            "72"
+          ],
+          "llm_hit_rate": 0.25,
+          "llm_n_fired": 3,
+          "llm_n_answered": 12
+        },
+        {
+          "key": "onchange",
+          "label": "'onchange' is present",
+          "severity": "high",
+          "n_answered": 38,
+          "n_fired": 11,
+          "hit_rate": 0.289474,
+          "fired_trouble": 0,
+          "fired_ok": 11,
+          "ok_trouble": 0,
+          "safe_ok": 27,
+          "odds_ratio": null,
+          "fisher_p": 1.0,
+          "fired_avg_grade": null,
+          "ok_avg_grade": null,
+          "fired_ids": [
+            "3",
+            "5",
+            "20",
+            "27",
+            "35",
+            "40",
+            "45",
+            "46",
+            "49",
+            "55",
+            "65"
+          ],
+          "llm_hit_rate": 0.75,
+          "llm_n_fired": 9,
+          "llm_n_answered": 12
+        },
+        {
+          "key": "var_speed",
+          "label": "'var_speed' is present",
+          "severity": "high",
+          "n_answered": 38,
+          "n_fired": 21,
+          "hit_rate": 0.552632,
+          "fired_trouble": 0,
+          "fired_ok": 21,
+          "ok_trouble": 0,
+          "safe_ok": 17,
+          "odds_ratio": null,
+          "fisher_p": 1.0,
+          "fired_avg_grade": null,
+          "ok_avg_grade": null,
+          "fired_ids": [
+            "3",
+            "5",
+            "11",
+            "18",
+            "20",
+            "24",
+            "27",
+            "35",
+            "40",
+            "41",
+            "44",
+            "45",
+            "46",
+            "49",
+            "55",
+            "58",
+            "60",
+            "65",
+            "71",
+            "72",
+            "82"
+          ],
+          "llm_hit_rate": 1.0,
+          "llm_n_fired": 12,
+          "llm_n_answered": 12
+        },
+        {
+          "key": "reversed_slider",
+          "label": "Speed logic inversed",
+          "severity": "medium",
+          "n_answered": 38,
+          "n_fired": 26,
+          "hit_rate": 0.684211,
+          "fired_trouble": 0,
+          "fired_ok": 26,
+          "ok_trouble": 0,
+          "safe_ok": 12,
+          "odds_ratio": null,
+          "fisher_p": 1.0,
+          "fired_avg_grade": null,
+          "ok_avg_grade": null,
+          "fired_ids": [
+            "4",
+            "5",
+            "8",
+            "13",
+            "18",
+            "27",
+            "29",
+            "35",
+            "41",
+            "44",
+            "45",
+            "46",
+            "47",
+            "49",
+            "50",
+            "58",
+            "60",
+            "65",
+            "67",
+            "69",
+            "70",
+            "72",
+            "74",
+            "77",
+            "81",
+            "82"
+          ],
+          "llm_hit_rate": 0.833333,
+          "llm_n_fired": 10,
+          "llm_n_answered": 12
+        },
+        {
+          "key": "extra",
+          "label": "Unexpected modifications",
+          "severity": "low",
+          "n_answered": 38,
+          "n_fired": 6,
+          "hit_rate": 0.157895,
+          "fired_trouble": 0,
+          "fired_ok": 6,
+          "ok_trouble": 0,
+          "safe_ok": 32,
+          "odds_ratio": null,
+          "fisher_p": 1.0,
+          "fired_avg_grade": null,
+          "ok_avg_grade": null,
+          "fired_ids": [
+            "20",
+            "27",
+            "30",
+            "40",
+            "71",
+            "72"
+          ],
+          "llm_hit_rate": 1.0,
+          "llm_n_fired": 12,
+          "llm_n_answered": 12
+        }
+      ]
+    },
+    {
+      "name": "Gallery",
+      "difficulty": "hard",
+      "n_submitted": 0,
+      "n_total": 38,
+      "n_trouble": 0,
+      "n_lesson_trouble": 0,
+      "n_ai": 31,
+      "n_ai_strong": 19,
+      "n_ai_upper": 30,
+      "n_artefact": 36,
+      "avg_grade": null,
+      "pass_rate": 0.0,
+      "trouble_rate": null,
+      "ai_rate": null,
+      "follow_avg": 94.815152,
+      "odds_ratio": null,
+      "fisher_p": null,
+      "n_followed": 33,
+      "scatter": [],
+      "ai_trouble": 0,
+      "ai_pass": 0,
+      "no_ai_trouble": 0,
+      "no_ai_pass": 0,
+      "ai_avg_grade": null,
+      "no_ai_avg_grade": null,
+      "lower": "gallery",
+      "n_artefact_valid": 36,
+      "any_artefact_fired": 30,
+      "any_artefact_rate": 0.833333,
+      "n_ai_high": 19,
+      "ai_high_rate": 0.527778,
+      "artefacts": [
+        {
+          "key": "onclick",
+          "label": "'onmousedown' is present",
+          "severity": "high",
+          "n_answered": 36,
+          "n_fired": 19,
+          "hit_rate": 0.527778,
+          "fired_trouble": 0,
+          "fired_ok": 19,
+          "ok_trouble": 0,
+          "safe_ok": 17,
+          "odds_ratio": null,
+          "fisher_p": 1.0,
+          "fired_avg_grade": null,
+          "ok_avg_grade": null,
+          "fired_ids": [
+            "3",
+            "8",
+            "11",
+            "13",
+            "24",
+            "35",
+            "40",
+            "41",
+            "45",
+            "47",
+            "49",
+            "50",
+            "55",
+            "60",
+            "67",
+            "69",
+            "71",
+            "74",
+            "82"
+          ],
+          "llm_hit_rate": 1.0,
+          "llm_n_fired": 7,
+          "llm_n_answered": 7
+        },
+        {
+          "key": "discarded_data",
+          "label": "Does not utilize API data",
+          "severity": "medium",
+          "n_answered": 36,
+          "n_fired": 10,
+          "hit_rate": 0.277778,
+          "fired_trouble": 0,
+          "fired_ok": 10,
+          "ok_trouble": 0,
+          "safe_ok": 26,
+          "odds_ratio": null,
+          "fisher_p": 1.0,
+          "fired_avg_grade": null,
+          "ok_avg_grade": null,
+          "fired_ids": [
+            "3",
+            "8",
+            "11",
+            "18",
+            "24",
+            "49",
+            "60",
+            "67",
+            "72",
+            "77"
+          ],
+          "llm_hit_rate": 0.571429,
+          "llm_n_fired": 4,
+          "llm_n_answered": 7
+        },
+        {
+          "key": "random_animals",
+          "label": "Implements randomization",
+          "severity": "medium",
+          "n_answered": 36,
+          "n_fired": 27,
+          "hit_rate": 0.75,
+          "fired_trouble": 0,
+          "fired_ok": 27,
+          "ok_trouble": 0,
+          "safe_ok": 9,
+          "odds_ratio": null,
+          "fisher_p": 1.0,
+          "fired_avg_grade": null,
+          "ok_avg_grade": null,
+          "fired_ids": [
+            "3",
+            "4",
+            "8",
+            "11",
+            "13",
+            "18",
+            "24",
+            "29",
+            "35",
+            "40",
+            "41",
+            "44",
+            "45",
+            "46",
+            "47",
+            "49",
+            "55",
+            "58",
+            "60",
+            "61",
+            "65",
+            "67",
+            "70",
+            "71",
+            "74",
+            "77",
+            "82"
+          ],
+          "llm_hit_rate": 1.0,
+          "llm_n_fired": 7,
+          "llm_n_answered": 7
+        }
+      ]
+    },
+    {
+      "name": "Qr",
+      "difficulty": "hard",
+      "n_submitted": 0,
+      "n_total": 38,
+      "n_trouble": 0,
+      "n_lesson_trouble": 0,
+      "n_ai": 21,
+      "n_ai_strong": 19,
+      "n_ai_upper": 19,
+      "n_artefact": 37,
+      "avg_grade": null,
+      "pass_rate": 0.0,
+      "trouble_rate": null,
+      "ai_rate": null,
+      "follow_avg": 92.312903,
+      "odds_ratio": null,
+      "fisher_p": null,
+      "n_followed": 31,
+      "scatter": [],
+      "ai_trouble": 0,
+      "ai_pass": 0,
+      "no_ai_trouble": 0,
+      "no_ai_pass": 0,
+      "ai_avg_grade": null,
+      "no_ai_avg_grade": null,
+      "lower": "qr",
+      "n_artefact_valid": 37,
+      "any_artefact_fired": 21,
+      "any_artefact_rate": 0.567568,
+      "n_ai_high": 19,
+      "ai_high_rate": 0.513514,
+      "artefacts": [
+        {
+          "key": "no_start",
+          "label": "Ignores the start material",
+          "severity": "high",
+          "n_answered": 37,
+          "n_fired": 1,
+          "hit_rate": 0.027027,
+          "fired_trouble": 0,
+          "fired_ok": 1,
+          "ok_trouble": 0,
+          "safe_ok": 36,
+          "odds_ratio": null,
+          "fisher_p": 1.0,
+          "fired_avg_grade": null,
+          "ok_avg_grade": null,
+          "fired_ids": [
+            "27"
+          ],
+          "llm_hit_rate": 0.0,
+          "llm_n_fired": 0,
+          "llm_n_answered": 12
+        },
+        {
+          "key": "in_stock",
+          "label": "'in_store' is present",
+          "severity": "high",
+          "n_answered": 37,
+          "n_fired": 19,
+          "hit_rate": 0.513514,
+          "fired_trouble": 0,
+          "fired_ok": 19,
+          "ok_trouble": 0,
+          "safe_ok": 18,
+          "odds_ratio": null,
+          "fisher_p": 1.0,
+          "fired_avg_grade": null,
+          "ok_avg_grade": null,
+          "fired_ids": [
+            "3",
+            "4",
+            "8",
+            "11",
+            "13",
+            "24",
+            "27",
+            "35",
+            "46",
+            "47",
+            "60",
+            "65",
+            "67",
+            "69",
+            "70",
+            "71",
+            "72",
+            "74",
+            "77"
+          ],
+          "llm_hit_rate": 0.666667,
+          "llm_n_fired": 8,
+          "llm_n_answered": 12
+        },
+        {
+          "key": "extra",
+          "label": "Unexpected modifications",
+          "severity": "low",
+          "n_answered": 37,
+          "n_fired": 10,
+          "hit_rate": 0.27027,
+          "fired_trouble": 0,
+          "fired_ok": 10,
+          "ok_trouble": 0,
+          "safe_ok": 27,
+          "odds_ratio": null,
+          "fisher_p": 1.0,
+          "fired_avg_grade": null,
+          "ok_avg_grade": null,
+          "fired_ids": [
+            "24",
+            "27",
+            "35",
+            "41",
+            "47",
+            "49",
+            "65",
+            "72",
+            "74",
+            "77"
+          ],
+          "llm_hit_rate": 0.583333,
+          "llm_n_fired": 7,
+          "llm_n_answered": 12
+        }
+      ]
+    }
+  ],
+  "llm_assignments": [
+    {
+      "name": "Wall",
+      "lower": "wall",
+      "n_total": 15,
+      "artefacts": [
+        {
+          "key": "color",
+          "label": "Color codes not from video",
+          "n_answered": 7,
+          "n_fired": 7,
+          "hit_rate": 1.0,
+          "fired_ids": [
+            "85",
+            "86",
+            "87",
+            "88",
+            "89",
+            "90",
+            "91"
+          ]
+        },
+        {
+          "key": "report",
+          "label": "Report is AI-like",
+          "n_answered": 7,
+          "n_fired": 6,
+          "hit_rate": 0.857143,
+          "fired_ids": [
+            "85",
+            "86",
+            "87",
+            "88",
+            "89",
+            "91"
+          ]
+        },
+        {
+          "key": "extra",
+          "label": "Unexpected row structure",
+          "n_answered": 7,
+          "n_fired": 0,
+          "hit_rate": 0.0,
+          "fired_ids": []
+        },
+        {
+          "key": "pattern",
+          "label": "Incorrect brick pattern",
+          "n_answered": 7,
+          "n_fired": 5,
+          "hit_rate": 0.714286,
+          "fired_ids": [
+            "85",
+            "87",
+            "89",
+            "90",
+            "91"
+          ]
+        },
+        {
+          "key": "illusion",
+          "label": "Illusion not mentioned",
+          "n_answered": 7,
+          "n_fired": 7,
+          "hit_rate": 1.0,
+          "fired_ids": [
+            "85",
+            "86",
+            "87",
+            "88",
+            "89",
+            "90",
+            "91"
+          ]
+        }
+      ],
+      "n_artefact_valid": 7,
+      "any_artefact_fired": 7,
+      "any_artefact_rate": 1.0
+    },
+    {
+      "name": "Chess",
+      "lower": "chess",
+      "n_total": 15,
+      "artefacts": [
+        {
+          "key": "start",
+          "label": "Starter code ignored",
+          "n_answered": 14,
+          "n_fired": 1,
+          "hit_rate": 0.071429,
+          "fired_ids": [
+            "97"
+          ]
+        },
+        {
+          "key": "method",
+          "label": "Method 8 is mentioned",
+          "n_answered": 14,
+          "n_fired": 14,
+          "hit_rate": 1.0,
+          "fired_ids": [
+            "85",
+            "86",
+            "87",
+            "88",
+            "89",
+            "90",
+            "91",
+            "92",
+            "93",
+            "94",
+            "95",
+            "96",
+            "97",
+            "98"
+          ]
+        },
+        {
+          "key": "white",
+          "label": "White-on-white not mentioned",
+          "n_answered": 14,
+          "n_fired": 14,
+          "hit_rate": 1.0,
+          "fired_ids": [
+            "85",
+            "86",
+            "87",
+            "88",
+            "89",
+            "90",
+            "91",
+            "92",
+            "93",
+            "94",
+            "95",
+            "96",
+            "97",
+            "98"
+          ]
+        },
+        {
+          "key": "pieces",
+          "label": "Incorrect piece pattern",
+          "n_answered": 14,
+          "n_fired": 10,
+          "hit_rate": 0.714286,
+          "fired_ids": [
+            "85",
+            "86",
+            "87",
+            "88",
+            "89",
+            "90",
+            "91",
+            "94",
+            "95",
+            "96"
+          ]
+        },
+        {
+          "key": "extra",
+          "label": "Unexpected modifications",
+          "n_answered": 14,
+          "n_fired": 8,
+          "hit_rate": 0.571429,
+          "fired_ids": [
+            "85",
+            "86",
+            "87",
+            "90",
+            "92",
+            "93",
+            "94",
+            "97"
+          ]
+        },
+        {
+          "key": "style",
+          "label": "Changed board color",
+          "n_answered": 14,
+          "n_fired": 12,
+          "hit_rate": 0.857143,
+          "fired_ids": [
+            "85",
+            "86",
+            "87",
+            "88",
+            "89",
+            "90",
+            "92",
+            "93",
+            "94",
+            "95",
+            "96",
+            "97"
+          ]
+        }
+      ],
+      "n_artefact_valid": 14,
+      "any_artefact_fired": 14,
+      "any_artefact_rate": 1.0
+    },
+    {
+      "name": "Sorting",
+      "lower": "sorting",
+      "n_total": 15,
+      "artefacts": [
+        {
+          "key": "start",
+          "label": "Starter code ignored",
+          "n_answered": 12,
+          "n_fired": 3,
+          "hit_rate": 0.25,
+          "fired_ids": [
+            "85",
+            "90",
+            "99"
+          ]
+        },
+        {
+          "key": "onchange",
+          "label": "'onchange' is present",
+          "n_answered": 12,
+          "n_fired": 9,
+          "hit_rate": 0.75,
+          "fired_ids": [
+            "85",
+            "86",
+            "87",
+            "89",
+            "90",
+            "92",
+            "94",
+            "96",
+            "99"
+          ]
+        },
+        {
+          "key": "var_speed",
+          "label": "'var_speed' is present",
+          "n_answered": 12,
+          "n_fired": 12,
+          "hit_rate": 1.0,
+          "fired_ids": [
+            "85",
+            "86",
+            "87",
+            "89",
+            "90",
+            "91",
+            "92",
+            "93",
+            "94",
+            "95",
+            "96",
+            "99"
+          ]
+        },
+        {
+          "key": "reversed_slider",
+          "label": "Speed logic inversed",
+          "n_answered": 12,
+          "n_fired": 10,
+          "hit_rate": 0.833333,
+          "fired_ids": [
+            "85",
+            "86",
+            "87",
+            "90",
+            "91",
+            "92",
+            "93",
+            "95",
+            "96",
+            "99"
+          ]
+        },
+        {
+          "key": "extra",
+          "label": "Unexpected modifications",
+          "n_answered": 12,
+          "n_fired": 12,
+          "hit_rate": 1.0,
+          "fired_ids": [
+            "85",
+            "86",
+            "87",
+            "89",
+            "90",
+            "91",
+            "92",
+            "93",
+            "94",
+            "95",
+            "96",
+            "99"
+          ]
+        }
+      ],
+      "n_artefact_valid": 12,
+      "any_artefact_fired": 12,
+      "any_artefact_rate": 1.0
+    },
+    {
+      "name": "Gallery",
+      "lower": "gallery",
+      "n_total": 15,
+      "artefacts": [
+        {
+          "key": "onclick",
+          "label": "'onmousedown' is present",
+          "n_answered": 7,
+          "n_fired": 7,
+          "hit_rate": 1.0,
+          "fired_ids": [
+            "85",
+            "86",
+            "87",
+            "88",
+            "89",
+            "90",
+            "91"
+          ]
+        },
+        {
+          "key": "discarded_data",
+          "label": "Does not utilize API data",
+          "n_answered": 7,
+          "n_fired": 4,
+          "hit_rate": 0.571429,
+          "fired_ids": [
+            "85",
+            "86",
+            "89",
+            "90"
+          ]
+        },
+        {
+          "key": "random_animals",
+          "label": "Implements randomization",
+          "n_answered": 7,
+          "n_fired": 7,
+          "hit_rate": 1.0,
+          "fired_ids": [
+            "85",
+            "86",
+            "87",
+            "88",
+            "89",
+            "90",
+            "91"
+          ]
+        }
+      ],
+      "n_artefact_valid": 7,
+      "any_artefact_fired": 7,
+      "any_artefact_rate": 1.0
+    },
+    {
+      "name": "Qr",
+      "lower": "qr",
+      "n_total": 15,
+      "artefacts": [
+        {
+          "key": "no_start",
+          "label": "Ignores the start material",
+          "n_answered": 12,
+          "n_fired": 0,
+          "hit_rate": 0.0,
+          "fired_ids": []
+        },
+        {
+          "key": "in_stock",
+          "label": "'in_store' is present",
+          "n_answered": 12,
+          "n_fired": 8,
+          "hit_rate": 0.666667,
+          "fired_ids": [
+            "85",
+            "86",
+            "87",
+            "88",
+            "89",
+            "90",
+            "91",
+            "96"
+          ]
+        },
+        {
+          "key": "extra",
+          "label": "Unexpected modifications",
+          "n_answered": 12,
+          "n_fired": 7,
+          "hit_rate": 0.583333,
+          "fired_ids": [
+            "85",
+            "86",
+            "89",
+            "90",
+            "92",
+            "93",
+            "96"
+          ]
+        }
+      ],
+      "n_artefact_valid": 12,
+      "any_artefact_fired": 10,
+      "any_artefact_rate": 0.833333
+    }
+  ],
+  "correlations": [
+    {
+      "label": "Pre-typing KPM \u2192 Final grade",
+      "r": null,
+      "p_r": null,
+      "rho": null,
+      "p_rho": null,
+      "n": 0
+    },
+    {
+      "label": "Post-typing KPM \u2192 Final grade",
+      "r": null,
+      "p_r": null,
+      "rho": null,
+      "p_rho": null,
+      "n": 0
+    },
+    {
+      "label": "Self-evaluation \u2192 Final grade",
+      "r": null,
+      "p_r": null,
+      "rho": null,
+      "p_rho": null,
+      "n": 0
+    },
+    {
+      "label": "Participation \u2192 Assign. avg (BX)",
+      "r": null,
+      "p_r": null,
+      "rho": null,
+      "p_rho": null,
+      "n": 0
+    },
+    {
+      "label": "Participation \u2192 Avg submitted only",
+      "r": null,
+      "p_r": null,
+      "rho": null,
+      "p_rho": null,
+      "n": 0
+    },
+    {
+      "label": "Participation \u2192 Pre-typing speed",
+      "r": 0.091763,
+      "p_r": 0.63591,
+      "rho": 0.086721,
+      "p_rho": 0.654653,
+      "n": 29
+    },
+    {
+      "label": "Participation \u2192 Typing improvement",
+      "r": 0.102859,
+      "p_r": 0.648747,
+      "rho": 0.185771,
+      "p_rho": 0.407828,
+      "n": 22
+    },
+    {
+      "label": "Participation \u2192 Final quiz",
+      "r": 0.352831,
+      "p_r": 0.065531,
+      "rho": 0.385878,
+      "p_rho": 0.04255,
+      "n": 28
+    },
+    {
+      "label": "Answers given \u2192 Final grade",
+      "r": null,
+      "p_r": null,
+      "rho": null,
+      "p_rho": null,
+      "n": 0
+    },
+    {
+      "label": "Questions asked \u2192 Final grade",
+      "r": null,
+      "p_r": null,
+      "rho": null,
+      "p_rho": null,
+      "n": 0
+    },
+    {
+      "label": "Help received \u2192 Final grade",
+      "r": null,
+      "p_r": null,
+      "rho": null,
+      "p_rho": null,
+      "n": 0
+    },
+    {
+      "label": "Kahoot score \u2192 Final grade",
+      "r": null,
+      "p_r": null,
+      "rho": null,
+      "p_rho": null,
+      "n": 0
+    },
+    {
+      "label": "Final quiz \u2192 Final grade",
+      "r": null,
+      "p_r": null,
+      "rho": null,
+      "p_rho": null,
+      "n": 0
+    },
+    {
+      "label": "Pre-typing KPM \u2192 AI flags",
+      "r": -0.40398,
+      "p_r": 0.026828,
+      "rho": -0.233552,
+      "p_rho": 0.21419,
+      "n": 30
+    },
+    {
+      "label": "Self-evaluation \u2192 AI flags",
+      "r": -0.461474,
+      "p_r": 0.006012,
+      "rho": -0.342732,
+      "p_rho": 0.047227,
+      "n": 34
+    },
+    {
+      "label": "Total AI flags \u2192 Final grade",
+      "r": null,
+      "p_r": null,
+      "rho": null,
+      "p_rho": null,
+      "n": 0
+    },
+    {
+      "label": "Self-evaluation \u2192 Participation",
+      "r": 0.056062,
+      "p_r": 0.756654,
+      "rho": 0.052861,
+      "p_rho": 0.770163,
+      "n": 33
+    }
+  ],
+  "typing": {
+    "pre_avg": 80.425608,
+    "post_avg": 94.945677,
+    "improvement_avg": 21.383172,
+    "n_with_both": 22,
+    "passed_pre_avg": null,
+    "failed_pre_avg": 80.425608,
+    "corr_pre_grade": {
+      "r": null,
+      "rho": null,
+      "p_rho": null,
+      "n": 0
+    },
+    "corr_post_grade": {
+      "r": null,
+      "rho": null,
+      "p_rho": null,
+      "n": 0
+    },
+    "corr_improvement_grade": {
+      "r": null,
+      "rho": null,
+      "p_rho": null,
+      "n": 0
+    }
+  },
+  "ai_overall": {
+    "ai_trouble": 0,
+    "ai_pass": 0,
+    "no_ai_trouble": 0,
+    "no_ai_pass": 0,
+    "trouble_rate_ai": null,
+    "trouble_rate_no_ai": null,
+    "odds_ratio": null,
+    "fisher_p": 1.0,
+    "chi2": null,
+    "chi2_p": null
+  },
+  "artefact_schema": {
+    "wall": [
+      {
+        "key": "color",
+        "label": "Color codes not from video",
+        "severity": "medium"
+      },
+      {
+        "key": "report",
+        "label": "Report is AI-like",
+        "severity": "medium"
+      },
+      {
+        "key": "extra",
+        "label": "Unexpected row structure",
+        "severity": "medium"
+      },
+      {
+        "key": "pattern",
+        "label": "Incorrect brick pattern",
+        "severity": "low"
+      },
+      {
+        "key": "illusion",
+        "label": "Illusion not mentioned",
+        "severity": "low"
+      }
+    ],
+    "chess": [
+      {
+        "key": "start",
+        "label": "Starter code ignored",
+        "severity": "high"
+      },
+      {
+        "key": "method",
+        "label": "Method 8 is mentioned",
+        "severity": "high"
+      },
+      {
+        "key": "white",
+        "label": "White-on-white not mentioned",
+        "severity": "medium"
+      },
+      {
+        "key": "pieces",
+        "label": "Incorrect piece pattern",
+        "severity": "low"
+      },
+      {
+        "key": "extra",
+        "label": "Unexpected modifications",
+        "severity": "low"
+      },
+      {
+        "key": "style",
+        "label": "Changed board color",
+        "severity": "low"
+      }
+    ],
+    "sorting": [
+      {
+        "key": "start",
+        "label": "Starter code ignored",
+        "severity": "high"
+      },
+      {
+        "key": "onchange",
+        "label": "'onchange' is present",
+        "severity": "high"
+      },
+      {
+        "key": "var_speed",
+        "label": "'var_speed' is present",
+        "severity": "high"
+      },
+      {
+        "key": "reversed_slider",
+        "label": "Speed logic inversed",
+        "severity": "medium"
+      },
+      {
+        "key": "extra",
+        "label": "Unexpected modifications",
+        "severity": "low"
+      }
+    ],
+    "gallery": [
+      {
+        "key": "onclick",
+        "label": "'onmousedown' is present",
+        "severity": "high"
+      },
+      {
+        "key": "discarded_data",
+        "label": "Does not utilize API data",
+        "severity": "medium"
+      },
+      {
+        "key": "random_animals",
+        "label": "Implements randomization",
+        "severity": "medium"
+      }
+    ],
+    "qr": [
+      {
+        "key": "no_start",
+        "label": "Ignores the start material",
+        "severity": "high"
+      },
+      {
+        "key": "in_stock",
+        "label": "'in_store' is present",
+        "severity": "high"
+      },
+      {
+        "key": "extra",
+        "label": "Unexpected modifications",
+        "severity": "low"
+      }
+    ]
+  },
+  "llm_rows": [
+    {
+      "id": "85",
+      "name": "chatgpt 5.5 instant"
+    },
+    {
+      "id": "86",
+      "name": "chatgpt 5.5 thinking"
+    },
+    {
+      "id": "87",
+      "name": "sonnet 4.6"
+    },
+    {
+      "id": "88",
+      "name": "opus 4.7"
+    },
+    {
+      "id": "89",
+      "name": "gemini 3.5 flash"
+    },
+    {
+      "id": "90",
+      "name": "deepseek v3"
+    },
+    {
+      "id": "91",
+      "name": "ollama gpt-oss20b"
+    },
+    {
+      "id": "92",
+      "name": "chatgpt 5.5 instant images"
+    },
+    {
+      "id": "93",
+      "name": "chatgpt 5.5 thinking images"
+    },
+    {
+      "id": "94",
+      "name": "sonnet 4.6 images"
+    },
+    {
+      "id": "95",
+      "name": "opus 4.7 images"
+    },
+    {
+      "id": "96",
+      "name": "gemini 3.5 flash images"
+    },
+    {
+      "id": "97",
+      "name": "chatgpt 5.5 instant no code"
+    },
+    {
+      "id": "98",
+      "name": "chatgpt 5.5 instant images no styles"
+    },
+    {
+      "id": "99",
+      "name": "deepseek v3 images"
+    }
+  ],
+  "curated_moments": [],
+  "follow_vs_grade": [
+    {
+      "name": "Wall",
+      "n": 0,
+      "r": null,
+      "p_r": null,
+      "rho": null,
+      "p_rho": null
+    },
+    {
+      "name": "Chess",
+      "n": 0,
+      "r": null,
+      "p_r": null,
+      "rho": null,
+      "p_rho": null
+    },
+    {
+      "name": "Sorting",
+      "n": 0,
+      "r": null,
+      "p_r": null,
+      "rho": null,
+      "p_rho": null
+    },
+    {
+      "name": "Gallery",
+      "n": 0,
+      "r": null,
+      "p_r": null,
+      "rho": null,
+      "p_rho": null
+    },
+    {
+      "name": "Qr",
+      "n": 0,
+      "r": null,
+      "p_r": null,
+      "rho": null,
+      "p_rho": null
+    }
+  ],
+  "per_language_follow": [
+    {
+      "lang": "HTML",
+      "mean": 88.071095,
+      "n": 0,
+      "r": null,
+      "p_r": null,
+      "rho": null,
+      "p_rho": null
+    },
+    {
+      "lang": "CSS",
+      "mean": 84.068571,
+      "n": 0,
+      "r": null,
+      "p_r": null,
+      "rho": null,
+      "p_rho": null
+    },
+    {
+      "lang": "JS",
+      "mean": 90.346905,
+      "n": 0,
+      "r": null,
+      "p_r": null,
+      "rho": null,
+      "p_rho": null
+    }
+  ],
+  "per_language_follow_per_lesson": [
+    {
+      "lesson": "Wall",
+      "lang": "HTML",
+      "n": 0,
+      "r": null,
+      "rho": null,
+      "p_rho": null,
+      "mean": 58.415789
+    },
+    {
+      "lesson": "Wall",
+      "lang": "CSS",
+      "n": 0,
+      "r": null,
+      "rho": null,
+      "p_rho": null,
+      "mean": 48.047368
+    },
+    {
+      "lesson": "Chess",
+      "lang": "HTML",
+      "n": 0,
+      "r": null,
+      "rho": null,
+      "p_rho": null,
+      "mean": 88.890323
+    },
+    {
+      "lesson": "Chess",
+      "lang": "CSS",
+      "n": 0,
+      "r": null,
+      "rho": null,
+      "p_rho": null,
+      "mean": 89.309677
+    },
+    {
+      "lesson": "Chess",
+      "lang": "JS",
+      "n": 0,
+      "r": null,
+      "rho": null,
+      "p_rho": null,
+      "mean": 84.016129
+    },
+    {
+      "lesson": "Sorting",
+      "lang": "HTML",
+      "n": 0,
+      "r": null,
+      "rho": null,
+      "p_rho": null,
+      "mean": 98.609375
+    },
+    {
+      "lesson": "Sorting",
+      "lang": "CSS",
+      "n": 0,
+      "r": null,
+      "rho": null,
+      "p_rho": null,
+      "mean": 92.45625
+    },
+    {
+      "lesson": "Sorting",
+      "lang": "JS",
+      "n": 0,
+      "r": null,
+      "rho": null,
+      "p_rho": null,
+      "mean": 96.803125
+    },
+    {
+      "lesson": "Gallery",
+      "lang": "HTML",
+      "n": 0,
+      "r": null,
+      "rho": null,
+      "p_rho": null,
+      "mean": 95.530303
+    },
+    {
+      "lesson": "Gallery",
+      "lang": "JS",
+      "n": 0,
+      "r": null,
+      "rho": null,
+      "p_rho": null,
+      "mean": 94.639394
+    },
+    {
+      "lesson": "Qr",
+      "lang": "HTML",
+      "n": 0,
+      "r": null,
+      "rho": null,
+      "p_rho": null,
+      "mean": 93.093548
+    },
+    {
+      "lesson": "Qr",
+      "lang": "CSS",
+      "n": 0,
+      "r": null,
+      "rho": null,
+      "p_rho": null,
+      "mean": 93.764516
+    },
+    {
+      "lesson": "Qr",
+      "lang": "JS",
+      "n": 0,
+      "r": null,
+      "rho": null,
+      "p_rho": null,
+      "mean": 90.296774
+    }
+  ],
+  "lesson_interactions": [
+    {
+      "lesson": "Wall",
+      "A_sum": 1,
+      "A_mean": 0.052632,
+      "Q_sum": 0,
+      "Q_mean": 0.0,
+      "H_sum": 0,
+      "H_mean": 0.0
+    },
+    {
+      "lesson": "Chess",
+      "A_sum": 6,
+      "A_mean": 0.193548,
+      "Q_sum": 2,
+      "Q_mean": 0.064516,
+      "H_sum": 0,
+      "H_mean": 0.0
+    },
+    {
+      "lesson": "Sorting",
+      "A_sum": 4,
+      "A_mean": 0.125,
+      "Q_sum": 3,
+      "Q_mean": 0.09375,
+      "H_sum": 3,
+      "H_mean": 0.09375
+    },
+    {
+      "lesson": "Gallery",
+      "A_sum": 3,
+      "A_mean": 0.090909,
+      "Q_sum": 4,
+      "Q_mean": 0.121212,
+      "H_sum": 0,
+      "H_mean": 0.0
+    },
+    {
+      "lesson": "Qr",
+      "A_sum": 2,
+      "A_mean": 0.064516,
+      "Q_sum": 2,
+      "Q_mean": 0.064516,
+      "H_sum": 0,
+      "H_mean": 0.0
+    }
+  ],
+  "comment_diff_per_lesson": [
+    {
+      "lesson": "Wall",
+      "n": 0,
+      "r": null,
+      "rho": null,
+      "p_rho": null,
+      "r_cplus": null,
+      "rho_cplus": null,
+      "p_cplus": null,
+      "r_cminus": null,
+      "rho_cminus": null,
+      "p_cminus": null,
+      "mean_cdiff": -21.894737,
+      "mean_cplus": 13.736842,
+      "mean_cminus": 35.631579
+    },
+    {
+      "lesson": "Chess",
+      "n": 0,
+      "r": null,
+      "rho": null,
+      "p_rho": null,
+      "r_cplus": null,
+      "rho_cplus": null,
+      "p_cplus": null,
+      "r_cminus": null,
+      "rho_cminus": null,
+      "p_cminus": null,
+      "mean_cdiff": 16.193548,
+      "mean_cplus": 18.935484,
+      "mean_cminus": 2.741935
+    },
+    {
+      "lesson": "Sorting",
+      "n": 0,
+      "r": null,
+      "rho": null,
+      "p_rho": null,
+      "r_cplus": null,
+      "rho_cplus": null,
+      "p_cplus": null,
+      "r_cminus": null,
+      "rho_cminus": null,
+      "p_cminus": null,
+      "mean_cdiff": 15.75,
+      "mean_cplus": 19.5625,
+      "mean_cminus": 3.8125
+    },
+    {
+      "lesson": "Gallery",
+      "n": 0,
+      "r": null,
+      "rho": null,
+      "p_rho": null,
+      "r_cplus": null,
+      "rho_cplus": null,
+      "p_cplus": null,
+      "r_cminus": null,
+      "rho_cminus": null,
+      "p_cminus": null,
+      "mean_cdiff": 4.515152,
+      "mean_cplus": 26.606061,
+      "mean_cminus": 22.090909
+    },
+    {
+      "lesson": "Qr",
+      "n": 0,
+      "r": null,
+      "rho": null,
+      "p_rho": null,
+      "r_cplus": null,
+      "rho_cplus": null,
+      "p_cplus": null,
+      "r_cminus": null,
+      "rho_cminus": null,
+      "p_cminus": null,
+      "mean_cdiff": 1.225806,
+      "mean_cplus": 9.225806,
+      "mean_cminus": 8.0
+    }
+  ],
+  "comment_totals": [
+    {
+      "label": "Total C+ (extra)",
+      "mean": 69.421053,
+      "final_grade_n": 0,
+      "final_grade_r": null,
+      "final_grade_rho": null,
+      "final_grade_p_rho": null,
+      "avg_assignments_n": 0,
+      "avg_assignments_r": null,
+      "avg_assignments_rho": null,
+      "avg_assignments_p_rho": null
+    },
+    {
+      "label": "Total C- (missing)",
+      "mean": 48.973684,
+      "final_grade_n": 0,
+      "final_grade_r": null,
+      "final_grade_rho": null,
+      "final_grade_p_rho": null,
+      "avg_assignments_n": 0,
+      "avg_assignments_r": null,
+      "avg_assignments_rho": null,
+      "avg_assignments_p_rho": null
+    },
+    {
+      "label": "Total C Diff (surplus)",
+      "mean": 20.447368,
+      "final_grade_n": 0,
+      "final_grade_r": null,
+      "final_grade_rho": null,
+      "final_grade_p_rho": null,
+      "avg_assignments_n": 0,
+      "avg_assignments_r": null,
+      "avg_assignments_rho": null,
+      "avg_assignments_p_rho": null
+    }
+  ],
+  "self_eval": {
+    "avg": 1.588235,
+    "corr_grade": {
+      "r": null,
+      "rho": null,
+      "p_rho": null,
+      "n": 0
+    }
+  },
+  "early_ai": [
+    {
+      "label": "AI in Wall (A1)",
+      "n_with": 0,
+      "n_without": 0
+    },
+    {
+      "label": "AI in Chess (A2)",
+      "n_with": 0,
+      "n_without": 0
+    },
+    {
+      "label": "AI in Wall OR Chess",
+      "n_with": 0,
+      "n_without": 0
+    },
+    {
+      "label": "AI in Wall AND Chess",
+      "n_with": 0,
+      "n_without": 0
+    }
+  ],
+  "engagement": [
+    {
+      "label": "Answers",
+      "n": 8,
+      "n_passed": 0,
+      "pass_rate": 0.0
+    },
+    {
+      "label": "Questions",
+      "n": 5,
+      "n_passed": 0,
+      "pass_rate": 0.0
+    },
+    {
+      "label": "Help",
+      "n": 3,
+      "n_passed": 0,
+      "pass_rate": 0.0
+    }
+  ],
+  "artefact_summary": {
+    "n_students": 38,
+    "mean_fired": 7.684211,
+    "max_fired": 17,
+    "passed_mean": null,
+    "failed_mean": 7.684211,
+    "grade_corr": {
+      "r": null,
+      "rho": null,
+      "p_rho": null,
+      "n": 0
+    },
+    "participation_corr": {
+      "r": -0.370768,
+      "rho": -0.457299,
+      "p_rho": 0.005747,
+      "n": 35
+    },
+    "self_eval_corr": {
+      "r": -0.367154,
+      "rho": -0.276953,
+      "p_rho": 0.112809,
+      "n": 34
+    },
+    "answers_corr": {
+      "r": -0.435526,
+      "rho": -0.372838,
+      "p_rho": 0.021146,
+      "n": 38
+    },
+    "questions_corr": {
+      "r": -0.273038,
+      "rho": -0.360336,
+      "p_rho": 0.026262,
+      "n": 38
+    },
+    "help_corr": {
+      "r": -0.001284,
+      "rho": -0.004471,
+      "p_rho": 0.978745,
+      "n": 38
+    },
+    "kahoot_corr": {
+      "r": -0.577508,
+      "rho": -0.5244,
+      "p_rho": 0.119688,
+      "n": 10
+    },
+    "quiz_stii_corr": {
+      "r": -0.463548,
+      "rho": -0.394947,
+      "p_rho": 0.037526,
+      "n": 28
+    },
+    "per_artefact_engagement": [
+      {
+        "assignment": "wall",
+        "assn_name": "Wall",
+        "key": "color",
+        "label": "Color codes not from video",
+        "severity": "medium",
+        "n_fired": 9,
+        "participation_corr": {
+          "r": -0.263503,
+          "rho": -0.212174,
+          "p_rho": 0.221086,
+          "n": 35
+        },
+        "self_eval_corr": {
+          "r": -0.199667,
+          "rho": -0.19333,
+          "p_rho": 0.273295,
+          "n": 34
+        },
+        "answers_corr": {
+          "r": -0.250708,
+          "rho": -0.28568,
+          "p_rho": 0.082094,
+          "n": 38
+        },
+        "questions_corr": {
+          "r": -0.086783,
+          "rho": -0.038489,
+          "p_rho": 0.818542,
+          "n": 38
+        },
+        "help_corr": {
+          "r": 0.066447,
+          "rho": 0.066447,
+          "p_rho": 0.691836,
+          "n": 38
+        }
+      },
+      {
+        "assignment": "wall",
+        "assn_name": "Wall",
+        "key": "report",
+        "label": "Report is AI-like",
+        "severity": "medium",
+        "n_fired": 9,
+        "participation_corr": {
+          "r": 0.012433,
+          "rho": -0.121268,
+          "p_rho": 0.487718,
+          "n": 35
+        },
+        "self_eval_corr": {
+          "r": -0.10538,
+          "rho": -0.065814,
+          "p_rho": 0.711526,
+          "n": 34
+        },
+        "answers_corr": {
+          "r": -0.184549,
+          "rho": -0.150776,
+          "p_rho": 0.36622,
+          "n": 38
+        },
+        "questions_corr": {
+          "r": -0.140844,
+          "rho": -0.2165,
+          "p_rho": 0.191701,
+          "n": 38
+        },
+        "help_corr": {
+          "r": -0.163098,
+          "rho": -0.163098,
+          "p_rho": 0.327881,
+          "n": 38
+        }
+      },
+      {
+        "assignment": "wall",
+        "assn_name": "Wall",
+        "key": "extra",
+        "label": "Unexpected row structure",
+        "severity": "medium",
+        "n_fired": 9,
+        "participation_corr": {
+          "r": -0.057458,
+          "rho": -0.141479,
+          "p_rho": 0.417541,
+          "n": 35
+        },
+        "self_eval_corr": {
+          "r": -0.19826,
+          "rho": -0.199973,
+          "p_rho": 0.25683,
+          "n": 34
+        },
+        "answers_corr": {
+          "r": -0.11839,
+          "rho": -0.015871,
+          "p_rho": 0.924653,
+          "n": 38
+        },
+        "questions_corr": {
+          "r": 0.291648,
+          "rho": 0.163578,
+          "p_rho": 0.32644,
+          "n": 38
+        },
+        "help_corr": {
+          "r": 0.295993,
+          "rho": 0.295993,
+          "p_rho": 0.071177,
+          "n": 38
+        }
+      },
+      {
+        "assignment": "wall",
+        "assn_name": "Wall",
+        "key": "pattern",
+        "label": "Incorrect brick pattern",
+        "severity": "low",
+        "n_fired": 19,
+        "participation_corr": {
+          "r": -0.100312,
+          "rho": -0.203771,
+          "p_rho": 0.240351,
+          "n": 35
+        },
+        "self_eval_corr": {
+          "r": -0.101624,
+          "rho": -0.030148,
+          "p_rho": 0.865598,
+          "n": 34
+        },
+        "answers_corr": {
+          "r": -0.112509,
+          "rho": -0.02699,
+          "p_rho": 0.872212,
+          "n": 38
+        },
+        "questions_corr": {
+          "r": -0.206856,
+          "rho": -0.237269,
+          "p_rho": 0.151475,
+          "n": 38
+        },
+        "help_corr": {
+          "r": 0.09759,
+          "rho": 0.09759,
+          "p_rho": 0.559972,
+          "n": 38
+        }
+      },
+      {
+        "assignment": "wall",
+        "assn_name": "Wall",
+        "key": "illusion",
+        "label": "Illusion not mentioned",
+        "severity": "low",
+        "n_fired": 26,
+        "participation_corr": {
+          "r": -0.21623,
+          "rho": -0.188912,
+          "p_rho": 0.277102,
+          "n": 35
+        },
+        "self_eval_corr": {
+          "r": -0.434086,
+          "rho": -0.396766,
+          "p_rho": 0.020165,
+          "n": 34
+        },
+        "answers_corr": {
+          "r": -0.35988,
+          "rho": -0.355645,
+          "p_rho": 0.028429,
+          "n": 38
+        },
+        "questions_corr": {
+          "r": -0.273254,
+          "rho": -0.246421,
+          "p_rho": 0.135856,
+          "n": 38
+        },
+        "help_corr": {
+          "r": -0.01105,
+          "rho": -0.01105,
+          "p_rho": 0.947503,
+          "n": 38
+        }
+      },
+      {
+        "assignment": "chess",
+        "assn_name": "Chess",
+        "key": "method",
+        "label": "Method 8 is mentioned",
+        "severity": "high",
+        "n_fired": 4,
+        "participation_corr": {
+          "r": 0.033783,
+          "rho": -0.036564,
+          "p_rho": 0.834818,
+          "n": 35
+        },
+        "self_eval_corr": {
+          "r": -0.102787,
+          "rho": -0.093823,
+          "p_rho": 0.59765,
+          "n": 34
+        },
+        "answers_corr": {
+          "r": -0.154361,
+          "rho": -0.175893,
+          "p_rho": 0.290822,
+          "n": 38
+        },
+        "questions_corr": {
+          "r": -0.086718,
+          "rho": -0.133299,
+          "p_rho": 0.424969,
+          "n": 38
+        },
+        "help_corr": {
+          "r": -0.100419,
+          "rho": -0.100419,
+          "p_rho": 0.548595,
+          "n": 38
+        }
+      },
+      {
+        "assignment": "chess",
+        "assn_name": "Chess",
+        "key": "white",
+        "label": "White-on-white not mentioned",
+        "severity": "medium",
+        "n_fired": 18,
+        "participation_corr": {
+          "r": -0.441887,
+          "rho": -0.44018,
+          "p_rho": 0.00814,
+          "n": 35
+        },
+        "self_eval_corr": {
+          "r": -0.173157,
+          "rho": -0.145319,
+          "p_rho": 0.412206,
+          "n": 34
+        },
+        "answers_corr": {
+          "r": -0.257943,
+          "rho": -0.141895,
+          "p_rho": 0.395442,
+          "n": 38
+        },
+        "questions_corr": {
+          "r": -0.193818,
+          "rho": -0.217116,
+          "p_rho": 0.190411,
+          "n": 38
+        },
+        "help_corr": {
+          "r": 0.113156,
+          "rho": 0.113156,
+          "p_rho": 0.498777,
+          "n": 38
+        }
+      },
+      {
+        "assignment": "chess",
+        "assn_name": "Chess",
+        "key": "pieces",
+        "label": "Incorrect piece pattern",
+        "severity": "low",
+        "n_fired": 9,
+        "participation_corr": {
+          "r": 0.204323,
+          "rho": 0.202113,
+          "p_rho": 0.24428,
+          "n": 35
+        },
+        "self_eval_corr": {
+          "r": 0.147415,
+          "rho": 0.18096,
+          "p_rho": 0.305747,
+          "n": 34
+        },
+        "answers_corr": {
+          "r": 0.212406,
+          "rho": 0.182518,
+          "p_rho": 0.272739,
+          "n": 38
+        },
+        "questions_corr": {
+          "r": -0.086783,
+          "rho": -0.038489,
+          "p_rho": 0.818542,
+          "n": 38
+        },
+        "help_corr": {
+          "r": -0.163098,
+          "rho": -0.163098,
+          "p_rho": 0.327881,
+          "n": 38
+        }
+      },
+      {
+        "assignment": "chess",
+        "assn_name": "Chess",
+        "key": "extra",
+        "label": "Unexpected modifications",
+        "severity": "low",
+        "n_fired": 8,
+        "participation_corr": {
+          "r": -0.329606,
+          "rho": -0.270226,
+          "p_rho": 0.116417,
+          "n": 35
+        },
+        "self_eval_corr": {
+          "r": 0.097066,
+          "rho": 0.161428,
+          "p_rho": 0.36173,
+          "n": 34
+        },
+        "answers_corr": {
+          "r": 0.043574,
+          "rho": 0.049653,
+          "p_rho": 0.767201,
+          "n": 38
+        },
+        "questions_corr": {
+          "r": -0.07418,
+          "rho": -0.015052,
+          "p_rho": 0.928534,
+          "n": 38
+        },
+        "help_corr": {
+          "r": 0.088192,
+          "rho": 0.088192,
+          "p_rho": 0.598529,
+          "n": 38
+        }
+      },
+      {
+        "assignment": "chess",
+        "assn_name": "Chess",
+        "key": "style",
+        "label": "Changed board color",
+        "severity": "low",
+        "n_fired": 27,
+        "participation_corr": {
+          "r": -0.303466,
+          "rho": -0.365636,
+          "p_rho": 0.030773,
+          "n": 35
+        },
+        "self_eval_corr": {
+          "r": -0.206131,
+          "rho": -0.110213,
+          "p_rho": 0.534926,
+          "n": 34
+        },
+        "answers_corr": {
+          "r": -0.27093,
+          "rho": -0.141343,
+          "p_rho": 0.397302,
+          "n": 38
+        },
+        "questions_corr": {
+          "r": 0.009336,
+          "rho": -0.252567,
+          "p_rho": 0.126056,
+          "n": 38
+        },
+        "help_corr": {
+          "r": -0.028314,
+          "rho": -0.028314,
+          "p_rho": 0.866001,
+          "n": 38
+        }
+      },
+      {
+        "assignment": "sorting",
+        "assn_name": "Sorting",
+        "key": "start",
+        "label": "Starter code ignored",
+        "severity": "high",
+        "n_fired": 3,
+        "participation_corr": {
+          "r": 0.009381,
+          "rho": -0.060939,
+          "p_rho": 0.728026,
+          "n": 35
+        },
+        "self_eval_corr": {
+          "r": -0.190623,
+          "rho": -0.212062,
+          "p_rho": 0.22858,
+          "n": 34
+        },
+        "answers_corr": {
+          "r": -0.131757,
+          "rho": -0.150136,
+          "p_rho": 0.368281,
+          "n": 38
+        },
+        "questions_corr": {
+          "r": -0.074019,
+          "rho": -0.113779,
+          "p_rho": 0.496399,
+          "n": 38
+        },
+        "help_corr": {
+          "r": -0.085714,
+          "rho": -0.085714,
+          "p_rho": 0.608881,
+          "n": 38
+        }
+      },
+      {
+        "assignment": "sorting",
+        "assn_name": "Sorting",
+        "key": "onchange",
+        "label": "'onchange' is present",
+        "severity": "high",
+        "n_fired": 11,
+        "participation_corr": {
+          "r": -0.144669,
+          "rho": -0.114531,
+          "p_rho": 0.512386,
+          "n": 35
+        },
+        "self_eval_corr": {
+          "r": 0.017791,
+          "rho": 0.1131,
+          "p_rho": 0.524215,
+          "n": 34
+        },
+        "answers_corr": {
+          "r": -0.101191,
+          "rho": -0.171099,
+          "p_rho": 0.304378,
+          "n": 38
+        },
+        "questions_corr": {
+          "r": -0.161373,
+          "rho": -0.248057,
+          "p_rho": 0.133194,
+          "n": 38
+        },
+        "help_corr": {
+          "r": -0.186871,
+          "rho": -0.186871,
+          "p_rho": 0.261269,
+          "n": 38
+        }
+      },
+      {
+        "assignment": "sorting",
+        "assn_name": "Sorting",
+        "key": "var_speed",
+        "label": "'var_speed' is present",
+        "severity": "high",
+        "n_fired": 21,
+        "participation_corr": {
+          "r": -0.000869,
+          "rho": -0.050943,
+          "p_rho": 0.771339,
+          "n": 35
+        },
+        "self_eval_corr": {
+          "r": -0.243897,
+          "rho": -0.170836,
+          "p_rho": 0.334042,
+          "n": 34
+        },
+        "answers_corr": {
+          "r": -0.273911,
+          "rho": -0.31212,
+          "p_rho": 0.056426,
+          "n": 38
+        },
+        "questions_corr": {
+          "r": -0.280998,
+          "rho": -0.431938,
+          "p_rho": 0.00677,
+          "n": 38
+        },
+        "help_corr": {
+          "r": -0.325396,
+          "rho": -0.325396,
+          "p_rho": 0.046208,
+          "n": 38
+        }
+      },
+      {
+        "assignment": "sorting",
+        "assn_name": "Sorting",
+        "key": "reversed_slider",
+        "label": "Speed logic inversed",
+        "severity": "medium",
+        "n_fired": 26,
+        "participation_corr": {
+          "r": -0.077992,
+          "rho": -0.23244,
+          "p_rho": 0.179052,
+          "n": 35
+        },
+        "self_eval_corr": {
+          "r": -0.27453,
+          "rho": -0.337599,
+          "p_rho": 0.050861,
+          "n": 34
+        },
+        "answers_corr": {
+          "r": -0.541412,
+          "rho": -0.508064,
+          "p_rho": 0.001128,
+          "n": 38
+        },
+        "questions_corr": {
+          "r": -0.273254,
+          "rho": -0.246421,
+          "p_rho": 0.135856,
+          "n": 38
+        },
+        "help_corr": {
+          "r": -0.01105,
+          "rho": -0.01105,
+          "p_rho": 0.947503,
+          "n": 38
+        }
+      },
+      {
+        "assignment": "sorting",
+        "assn_name": "Sorting",
+        "key": "extra",
+        "label": "Unexpected modifications",
+        "severity": "low",
+        "n_fired": 6,
+        "participation_corr": {
+          "r": -0.346442,
+          "rho": -0.282958,
+          "p_rho": 0.099545,
+          "n": 35
+        },
+        "self_eval_corr": {
+          "r": 0.006332,
+          "rho": 0.056355,
+          "p_rho": 0.751576,
+          "n": 34
+        },
+        "answers_corr": {
+          "r": 0.113675,
+          "rho": 0.129531,
+          "p_rho": 0.438289,
+          "n": 38
+        },
+        "questions_corr": {
+          "r": 0.331745,
+          "rho": 0.067313,
+          "p_rho": 0.688024,
+          "n": 38
+        },
+        "help_corr": {
+          "r": 0.140859,
+          "rho": 0.140859,
+          "p_rho": 0.398935,
+          "n": 38
+        }
+      },
+      {
+        "assignment": "gallery",
+        "assn_name": "Gallery",
+        "key": "onclick",
+        "label": "'onmousedown' is present",
+        "severity": "high",
+        "n_fired": 19,
+        "participation_corr": {
+          "r": -0.294317,
+          "rho": -0.300981,
+          "p_rho": 0.078925,
+          "n": 35
+        },
+        "self_eval_corr": {
+          "r": -0.266872,
+          "rho": -0.2262,
+          "p_rho": 0.198313,
+          "n": 34
+        },
+        "answers_corr": {
+          "r": -0.281272,
+          "rho": -0.168688,
+          "p_rho": 0.311345,
+          "n": 38
+        },
+        "questions_corr": {
+          "r": -0.206856,
+          "rho": -0.237269,
+          "p_rho": 0.151475,
+          "n": 38
+        },
+        "help_corr": {
+          "r": 0.09759,
+          "rho": 0.09759,
+          "p_rho": 0.559972,
+          "n": 38
+        }
+      },
+      {
+        "assignment": "gallery",
+        "assn_name": "Gallery",
+        "key": "discarded_data",
+        "label": "Does not utilize API data",
+        "severity": "medium",
+        "n_fired": 10,
+        "participation_corr": {
+          "r": -0.290252,
+          "rho": -0.394521,
+          "p_rho": 0.019013,
+          "n": 35
+        },
+        "self_eval_corr": {
+          "r": -0.111832,
+          "rho": -0.06409,
+          "p_rho": 0.718774,
+          "n": 34
+        },
+        "answers_corr": {
+          "r": -0.141197,
+          "rho": -0.04597,
+          "p_rho": 0.784043,
+          "n": 38
+        },
+        "questions_corr": {
+          "r": -0.098896,
+          "rho": -0.060385,
+          "p_rho": 0.718747,
+          "n": 38
+        },
+        "help_corr": {
+          "r": 0.268277,
+          "rho": 0.268277,
+          "p_rho": 0.103411,
+          "n": 38
+        }
+      },
+      {
+        "assignment": "gallery",
+        "assn_name": "Gallery",
+        "key": "random_animals",
+        "label": "Implements randomization",
+        "severity": "medium",
+        "n_fired": 27,
+        "participation_corr": {
+          "r": -0.200368,
+          "rho": -0.200657,
+          "p_rho": 0.247767,
+          "n": 35
+        },
+        "self_eval_corr": {
+          "r": -0.386367,
+          "rho": -0.313924,
+          "p_rho": 0.070603,
+          "n": 34
+        },
+        "answers_corr": {
+          "r": -0.39497,
+          "rho": -0.394272,
+          "p_rho": 0.014309,
+          "n": 38
+        },
+        "questions_corr": {
+          "r": -0.29474,
+          "rho": -0.275117,
+          "p_rho": 0.09458,
+          "n": 38
+        },
+        "help_corr": {
+          "r": -0.028314,
+          "rho": -0.028314,
+          "p_rho": 0.866001,
+          "n": 38
+        }
+      },
+      {
+        "assignment": "qr",
+        "assn_name": "Qr",
+        "key": "in_stock",
+        "label": "'in_store' is present",
+        "severity": "high",
+        "n_fired": 19,
+        "participation_corr": {
+          "r": -0.268575,
+          "rho": -0.435843,
+          "p_rho": 0.008867,
+          "n": 35
+        },
+        "self_eval_corr": {
+          "r": -0.29358,
+          "rho": -0.261279,
+          "p_rho": 0.135546,
+          "n": 34
+        },
+        "answers_corr": {
+          "r": -0.337526,
+          "rho": -0.283396,
+          "p_rho": 0.084679,
+          "n": 38
+        },
+        "questions_corr": {
+          "r": -0.206856,
+          "rho": -0.237269,
+          "p_rho": 0.151475,
+          "n": 38
+        },
+        "help_corr": {
+          "r": 0.09759,
+          "rho": 0.09759,
+          "p_rho": 0.559972,
+          "n": 38
+        }
+      },
+      {
+        "assignment": "qr",
+        "assn_name": "Qr",
+        "key": "extra",
+        "label": "Unexpected modifications",
+        "severity": "low",
+        "n_fired": 10,
+        "participation_corr": {
+          "r": -0.036977,
+          "rho": -0.174766,
+          "p_rho": 0.315315,
+          "n": 35
+        },
+        "self_eval_corr": {
+          "r": -0.068624,
+          "rho": -0.03016,
+          "p_rho": 0.865544,
+          "n": 34
+        },
+        "answers_corr": {
+          "r": -0.205072,
+          "rho": -0.176217,
+          "p_rho": 0.289921,
+          "n": 38
+        },
+        "questions_corr": {
+          "r": -0.151091,
+          "rho": -0.232251,
+          "p_rho": 0.160576,
+          "n": 38
+        },
+        "help_corr": {
+          "r": -0.174964,
+          "rho": -0.174964,
+          "p_rho": 0.293419,
+          "n": 38
+        }
+      }
+    ]
+  }
+}

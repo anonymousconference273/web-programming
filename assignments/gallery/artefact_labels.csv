@@ -1,0 +1,4 @@
+key,label,code,severity
+onclick,'onmousedown' is present,W_i,high
+discarded_data,Does not utilize API data,S_a,medium
+random_animals,Implements randomization,S_a,medium

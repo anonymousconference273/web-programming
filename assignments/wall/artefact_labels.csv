@@ -1,0 +1,6 @@
+key,label,code,severity
+color,Color codes not from video,S_v,medium
+report,Report is AI-like,I_s,medium
+extra,Unexpected row structure,I_o,medium
+pattern,Incorrect brick pattern,S_o,low
+illusion,Illusion not mentioned,S_o,low
