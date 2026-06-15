@@ -125,10 +125,11 @@ function renderTable() {
 		if (s.excluded) tr.classList.add("row-excluded");
 		if (s.ai_flagged) tr.classList.add("row-ai");
 
-		const cell = (content, cls = "") => {
+		const cell = (content, cls = "", html = false) => {
 			const td = document.createElement("td");
 			if (cls) td.className = cls;
-			td.textContent = content ?? "";
+			if (html) td.innerHTML = content ?? "";
+			else td.textContent = content ?? "";
 			return td;
 		};
 		const obsCell = (entry, cls = "") => {
@@ -219,6 +220,7 @@ function renderTable() {
 			cell(
 				formatInteractionCounts(s.total_a, s.total_q, s.total_h),
 				"col-int",
+				true,
 			),
 		);
 		tr.appendChild(
@@ -346,7 +348,7 @@ function _appendOverviewTotalsRow(tbody, rows) {
 	tr.appendChild(pc);
 
 	tr.appendChild(
-		addCell(
+		addHtmlCell(
 			formatInteractionCounts(
 				sum(cohort.map((s) => s.total_a)),
 				sum(cohort.map((s) => s.total_q)),
@@ -476,7 +478,7 @@ _loadHiddenCols();
 
 function studentLabel(s) {
 	if (!s) return "";
-	return _realToAlterMap[_nfc(s.name)] || s.name;
+	return s.name;
 }
 
 function studentLabelWithId(s) {

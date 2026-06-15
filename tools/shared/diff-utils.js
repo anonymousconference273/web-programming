@@ -568,9 +568,10 @@ function formatInteractionCounts(a, q, h) {
 	const fmt = (n, emoji) => {
 		const c = Math.round(+n);
 		if (!(c > 0)) return null;
-		return c === 1 ? emoji : `${emoji}×${c}`;
+		const inner = c === 1 ? emoji : `${emoji}&nbsp;${c}`;
+		return `<span class="ia-box">${inner}</span>`;
 	};
-	return [fmt(a, "🙋"), fmt(q, "❓"), fmt(h, "🤝")].filter(Boolean).join(" ");
+	return [fmt(a, "🙋"), fmt(q, "❓"), fmt(h, "🤝")].filter(Boolean).join("");
 }
 
 function artefactCodeHtml(code) {

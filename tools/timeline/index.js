@@ -367,6 +367,11 @@ async function _tryLoadTimelineFromUrlParams() {
 	if (bm === "0" || bm === "1") _bottomChartVisible.barMode = bm === "1";
 	_emphasisStartHms = qs.get("start");
 	_emphasisEndHms = qs.get("end");
+	if (qs.get("interactions") === "1") {
+		_topChartVisible.interactions = true;
+		const ic = document.getElementById("leg-interactions");
+		if (ic) ic.checked = true;
+	}
 	if (qs.get("midchart") === "0") {
 		_midChartHidden = true;
 		const sec = document.getElementById("chart-middle-section");

@@ -7352,6 +7352,18 @@
     {
       "timestamp": 1773833090825,
       "char": "💾"
+    },
+    {
+      "timestamp": 1773833097881,
+      "interaction": "providing-help",
+      "student": [30],
+      "closed_at": 1773833161654
+    },
+    {
+      "timestamp": 1773833165511,
+      "interaction": "providing-help",
+      "student": [29],
+      "closed_at": 1773833201529
     }
   ]
 }
