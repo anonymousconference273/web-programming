@@ -2,11 +2,7 @@
 
 function parseStudentRows(remarksBuf) {
 	const wbR = XLSX.read(remarksBuf, { type: "array", cellStyles: true });
-	const sheetName = wbR.Sheets["Grades"]
-		? "Grades"
-		: wbR.Sheets["Remarks"]
-			? "Remarks"
-			: wbR.SheetNames[0];
+	const sheetName = wbR.Sheets["Remarks"] ? "Remarks" : wbR.SheetNames[0];
 	const wsR = wbR.Sheets[sheetName];
 	const rowsR = XLSX.utils.sheet_to_json(wsR, {
 		header: 1,
@@ -24,13 +20,13 @@ function parseStudentRows(remarksBuf) {
 		iFollowPct = iSimilarity;
 		iFollowDesc = hdrR.indexOf("Similarity Desc");
 	}
+	const isSimilarity = iSimilarity !== -1;
 	let iCommentDesc = hdrR.indexOf("Follow (C) Desc");
 	if (iCommentDesc === -1) iCommentDesc = hdrR.indexOf("Sim (C) Desc");
 	const iRemarksDesc = findCol(hdrR, /^remarks?\s*desc/i);
 
 	const iInteractions = findCol(hdrR, /^interactions?$/i);
-	let iExcluded = hdrR.indexOf("Category");
-	if (iExcluded === -1) iExcluded = hdrR.indexOf("Excluded");
+	const iExcluded = hdrR.indexOf("Category");
 	const langIdx = {};
 	const langDescIdx = {};
 	for (const def of LANG_COL_DEFS) {
@@ -82,7 +78,7 @@ function parseStudentRows(remarksBuf) {
 			iFollowDesc !== -1 ? String(row[iFollowDesc] || "") : "";
 		const followEvents = isNaN(followPct)
 			? []
-			: iSimilarity !== -1
+			: isSimilarity
 				? parseSimilarityEvents(followDesc)
 				: parseFollowEvents(followDesc);
 		const remarksDesc =
@@ -136,11 +132,11 @@ function parseStudentRows(remarksBuf) {
 				else if (ch === "H") _ih++;
 			}
 		}
-		const interactions = formatInteractionCounts(_ia, _iq, _ih);
 		const langPcts = {};
 		const langEvents = [];
-		const langParser =
-			iSimilarity !== -1 ? parseSimilarityEvents : parseFollowEvents;
+		const langParser = isSimilarity
+			? parseSimilarityEvents
+			: parseFollowEvents;
 		for (const def of LANG_COL_DEFS) {
 			if (langIdx[def.key] != null) {
 				const v = parseFloat(row[langIdx[def.key]]);
@@ -180,7 +176,9 @@ function parseStudentRows(remarksBuf) {
 			followEvents,
 			remarksDesc,
 			remarks,
-			interactions,
+			total_a: _ia,
+			total_q: _iq,
+			total_h: _ih,
 			langPcts,
 			langEvents,
 			commentEvents,
@@ -198,7 +196,8 @@ function parseStudentRows(remarksBuf) {
 		remarkCols: remarkCols.map((c) => c.name),
 		remarkColIdx,
 		hasInteractions: iInteractions !== -1,
-		followLabel: iSimilarity !== -1 ? "SIM" : "FOLLOW",
+		scoreKind: isSimilarity ? "similarity" : "follow",
+		followLabel: isSimilarity ? "SIM" : "FOLLOW",
 		workbook: wbR,
 		sheetName,
 		headerRow: hdrR,
@@ -208,25 +207,4 @@ function parseStudentRows(remarksBuf) {
 function findCol(headers, re) {
 	const idx = headers.findIndex((h) => re.test(h));
 	return idx;
-}
-
-function parseSimilarityEvents(descText) {
-	const events = [];
-	const text = String(descText || "");
-	const re =
-		/([+-])(.+?)(?:\s+\(x(\d+)\)|\s+\((\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?)\))?(?:\s*~([0-9.]+))?(?=,\s+[+-]|$)/g;
-	let m;
-	while ((m = re.exec(text)) !== null) {
-		const kind = m[1] === "-" ? "missing" : "extra";
-		const token = m[2];
-		if (m[4]) {
-			const ev = { kind, token, ts: _hmsToSeconds(m[4]) };
-			if (m[5] != null) ev.sim = parseFloat(m[5]);
-			events.push(ev);
-		} else {
-			const count = m[3] ? parseInt(m[3]) : 1;
-			for (let i = 0; i < count; i++) events.push({ kind, token });
-		}
-	}
-	return events;
 }

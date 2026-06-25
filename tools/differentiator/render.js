@@ -1,4 +1,7 @@
 "use strict";
+const _GHOST_TOKEN_RE = newTokenRegex();
+const _diffEmbedCache = new Map();
+const _DIFF_EMBED_TAG_LANG = { script: "js", style: "css" };
 
 function _diffMissingColorFor(fileName) {
 	if (typeof _diffMissingLangColor !== "undefined" && !_diffMissingLangColor)
@@ -6,28 +9,21 @@ function _diffMissingColorFor(fileName) {
 	return langColorFor(getFileExt(fileName)) || MARK_COLORS.missing;
 }
 
-const _DIFF_EMBED_TAG_LANG = { script: "js", style: "css" };
-const _diffEmbedCache = new Map();
-
 function _diffEmbeddedRangesFor(text) {
 	if (!text) return [];
 	const cached = _diffEmbedCache.get(text);
 	if (cached !== undefined) return cached;
 	const ranges = [];
-	const openRe = /<\s*(script|style)\b[^>]*>/gi;
-	let m;
-	while ((m = openRe.exec(text)) !== null) {
-		const tag = m[1].toLowerCase();
-		const innerStart = m.index + m[0].length;
-		const closeRe = new RegExp(
-			`<\\/\\s*${tag}\\s*>|<\\s*\\\\\\s*\\/?\\s*${tag}\\s*>|\\/\\s*${tag}\\s*>`,
-			"i",
-		);
-		const sub = text.slice(innerStart);
-		const cm = sub.match(closeRe);
-		const innerEnd = cm ? innerStart + cm.index : text.length;
-		ranges.push([innerStart, innerEnd, _DIFF_EMBED_TAG_LANG[tag]]);
-		openRe.lastIndex = cm ? innerEnd + cm[0].length : text.length;
+	const LP = window.LanguageProfiles;
+	const htmlProfile = LP && LP.getProfile ? LP.getProfile("html") : null;
+	if (htmlProfile && LP.embeddedTagRanges) {
+		const byTag = LP.embeddedTagRanges(htmlProfile, text);
+		for (const [tag, spans] of Object.entries(byTag)) {
+			const lang = _DIFF_EMBED_TAG_LANG[tag];
+			if (!lang) continue;
+			for (const [lo, hi] of spans) ranges.push([lo, hi, lang]);
+		}
+		ranges.sort((a, b) => a[0] - b[0]);
 	}
 	_diffEmbedCache.set(text, ranges);
 	return ranges;
@@ -59,6 +55,56 @@ function _lineStartOffsets(text) {
 	return starts;
 }
 
+function _renderDiffLine(lineIdx, ctx) {
+	const {
+		lines,
+		lineStarts,
+		normText,
+		sortedMarks,
+		fileGhosts,
+		fileAnchors,
+		lineFileMarks,
+		side,
+		fileName,
+		lineNumFor,
+		anchorEndInclusive,
+	} = ctx;
+	const lineStart = lineStarts[lineIdx] ?? normText.length;
+	const lineEnd =
+		lineIdx + 1 < lineStarts.length
+			? lineStarts[lineIdx + 1]
+			: normText.length + 1;
+	const lineText = lines[lineIdx] ?? "";
+	const lineMarks = sortedMarks
+		.filter((m) => m.start >= lineStart && m.start < lineEnd)
+		.map((m) => ({
+			...m,
+			_abs_start: m.start,
+			start: m.start - lineStart,
+			end: Math.min(m.end, lineEnd) - lineStart,
+		}));
+	const lineGhosts = fileGhosts
+		.filter((g) => g.pos >= lineStart && g.pos < lineEnd)
+		.map((g) => ({ ...g, _abs_pos: g.pos, pos: g.pos - lineStart }));
+	const _isLastLine = lineIdx + 1 >= lineStarts.length;
+	const lineAnchors = fileAnchors
+		.filter(
+			(a) =>
+				a.pos >= lineStart &&
+				(anchorEndInclusive && _isLastLine
+					? a.pos <= lineEnd
+					: a.pos < lineEnd),
+		)
+		.map((a) => ({ ...a, _abs_pos: a.pos, pos: a.pos - lineStart }));
+	const bgMark =
+		lineFileMarks &&
+		lineFileMarks.find((lm) => lm.start >= lineStart && lm.start < lineEnd);
+	const bgCls = bgMark ? ` diff-line--${bgMark.label}` : "";
+	const ln = lineNumFor.numbers[lineIdx];
+	const numAttr = ln != null ? ` data-line-num="${ln}"` : "";
+	return `<div class="diff-line${bgCls}" data-src-start="${lineStart}"${numAttr}>${diffColorizePositions(lineText, lineMarks, side, lineGhosts, lineAnchors, fileName, normText)}</div>`;
+}
+
 function _renderAligned(
 	text,
 	alignment,
@@ -77,43 +123,26 @@ function _renderAligned(
 	const fileAnchors = side === "student" ? _getInsertAnchors(fileName) : [];
 	const lineNumFor = _lineNumberMap(lines, lineStarts, normText, fileGhosts);
 
+	const ctx = {
+		lines,
+		lineStarts,
+		normText,
+		sortedMarks,
+		fileGhosts,
+		fileAnchors,
+		lineFileMarks,
+		side,
+		fileName,
+		lineNumFor,
+		anchorEndInclusive: false,
+	};
 	const parts = [];
 	for (const pair of alignment) {
 		const lineIdx = pair[sideIdx];
 		if (lineIdx === null) {
 			parts.push('<div class="diff-spacer" contenteditable="false">​</div>');
 		} else {
-			const lineStart = lineStarts[lineIdx] ?? normText.length;
-			const lineEnd =
-				lineIdx + 1 < lineStarts.length
-					? lineStarts[lineIdx + 1]
-					: normText.length + 1;
-			const lineText = lines[lineIdx] ?? "";
-			const lineMarks = sortedMarks
-				.filter((m) => m.start >= lineStart && m.start < lineEnd)
-				.map((m) => ({
-					...m,
-					_abs_start: m.start,
-					start: m.start - lineStart,
-					end: Math.min(m.end, lineEnd) - lineStart,
-				}));
-			const lineGhosts = fileGhosts
-				.filter((g) => g.pos >= lineStart && g.pos < lineEnd)
-				.map((g) => ({ ...g, _abs_pos: g.pos, pos: g.pos - lineStart }));
-			const lineAnchors = fileAnchors
-				.filter((a) => a.pos >= lineStart && a.pos < lineEnd)
-				.map((a) => ({ ...a, _abs_pos: a.pos, pos: a.pos - lineStart }));
-			const bgMark =
-				lineFileMarks &&
-				lineFileMarks.find(
-					(lm) => lm.start >= lineStart && lm.start < lineEnd,
-				);
-			const bgCls = bgMark ? ` diff-line--${bgMark.label}` : "";
-			const ln = lineNumFor.numbers[lineIdx];
-			const numAttr = ln != null ? ` data-line-num="${ln}"` : "";
-			parts.push(
-				`<div class="diff-line${bgCls}" data-src-start="${lineStart}"${numAttr}>${diffColorizePositions(lineText, lineMarks, side, lineGhosts, lineAnchors, fileName, normText)}</div>`,
-			);
+			parts.push(_renderDiffLine(lineIdx, ctx));
 		}
 	}
 	return parts.join("");
@@ -155,39 +184,22 @@ function _renderFlat(text, fileMarks, lineFileMarks, side, fileName) {
 	const fileAnchors = side === "student" ? _getInsertAnchors(fileName) : [];
 	const lineNumFor = _lineNumberMap(lines, lineStarts, normText, fileGhosts);
 
+	const ctx = {
+		lines,
+		lineStarts,
+		normText,
+		sortedMarks,
+		fileGhosts,
+		fileAnchors,
+		lineFileMarks,
+		side,
+		fileName,
+		lineNumFor,
+		anchorEndInclusive: true,
+	};
 	const parts = [];
 	for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
-		const lineStart = lineStarts[lineIdx] ?? normText.length;
-		const lineEnd =
-			lineIdx + 1 < lineStarts.length
-				? lineStarts[lineIdx + 1]
-				: normText.length + 1;
-		const lineText = lines[lineIdx] ?? "";
-		const lineMarks = sortedMarks
-			.filter((m) => m.start >= lineStart && m.start < lineEnd)
-			.map((m) => ({
-				...m,
-				_abs_start: m.start,
-				start: m.start - lineStart,
-				end: Math.min(m.end, lineEnd) - lineStart,
-			}));
-		const lineGhosts = fileGhosts
-			.filter((g) => g.pos >= lineStart && g.pos < lineEnd)
-			.map((g) => ({ ...g, _abs_pos: g.pos, pos: g.pos - lineStart }));
-		const lineAnchors = fileAnchors
-			.filter((a) => a.pos >= lineStart && a.pos <= lineEnd)
-			.map((a) => ({ ...a, _abs_pos: a.pos, pos: a.pos - lineStart }));
-		const bgMark =
-			lineFileMarks &&
-			lineFileMarks.find(
-				(lm) => lm.start >= lineStart && lm.start < lineEnd,
-			);
-		const bgCls = bgMark ? ` diff-line--${bgMark.label}` : "";
-		const ln = lineNumFor.numbers[lineIdx];
-		const numAttr = ln != null ? ` data-line-num="${ln}"` : "";
-		parts.push(
-			`<div class="diff-line${bgCls}" data-src-start="${lineStart}"${numAttr}>${diffColorizePositions(lineText, lineMarks, side, lineGhosts, lineAnchors, fileName, normText)}</div>`,
-		);
+		parts.push(_renderDiffLine(lineIdx, ctx));
 	}
 	return parts.join("");
 }
@@ -504,8 +516,6 @@ function sortFileNames(names, preferReconstructed) {
 	}
 	return [...html, ...css, ...js, ...py, ...other];
 }
-
-const _GHOST_TOKEN_RE = newTokenRegex();
 
 function _renderGhostBlob(ghost, tokensTbl) {
 	const text = ghost.text;

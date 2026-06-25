@@ -47,7 +47,7 @@ function _renderLeoTooltip(token, data, side, pos, ghostOffset) {
 						? "leo-row-extra-star"
 						: "";
 
-	const renderSingleRow = (inst, sideName, ctx, highlight, score, isSelf) => {
+	const renderSingleRow = (inst, ctx, highlight, score, isSelf) => {
 		const fmt = isSelf ? _fmtCtxToken : _fmtCtxTokenBold;
 		const before = ctx ? ctx.before.map(fmt).join(" ") : "";
 		const after = ctx ? ctx.after.map(fmt).join(" ") : "";
@@ -82,7 +82,6 @@ function _renderLeoTooltip(token, data, side, pos, ghostOffset) {
 		if (!isDual) {
 			return renderSingleRow(
 				inst,
-				sideName,
 				_contextSlice(inst, sideName),
 				highlight,
 				score,
@@ -94,8 +93,8 @@ function _renderLeoTooltip(token, data, side, pos, ghostOffset) {
 		const cls = `leo-pair${highlight ? " leo-this" : ""}`;
 		return (
 			`<div class="${cls}">` +
-			renderSingleRow(inst, sideName, ctxWith, false, score, isSelf) +
-			renderSingleRow(inst, sideName, ctxStripped, false, scoreAlt, isSelf) +
+			renderSingleRow(inst, ctxWith, false, score, isSelf) +
+			renderSingleRow(inst, ctxStripped, false, scoreAlt, isSelf) +
 			`</div>`
 		);
 	};
@@ -185,14 +184,10 @@ function _fmtCtxToken(t) {
 	return escHtml(t);
 }
 
-let _leoTip = null;
-let _leoTipBody = null;
-let _leoTipTitle = null;
-function _ensureLeoTooltip() {
-	if (_leoTip) return _leoTip;
-	_leoTip = document.createElement("div");
-	_leoTip.id = "leo-tooltip";
-	_leoTip.className = "float-win";
+function _makeFloatWin({ id, className, onClose }) {
+	const win = document.createElement("div");
+	win.className = className;
+	if (id) win.id = id;
 
 	const header = document.createElement("div");
 	header.className = "float-win__header";
@@ -200,24 +195,40 @@ function _ensureLeoTooltip() {
 	dragHint.className = "float-win__drag";
 	dragHint.textContent = "⠿";
 	header.appendChild(dragHint);
-	_leoTipTitle = document.createElement("span");
-	_leoTipTitle.className = "float-win__title";
-	header.appendChild(_leoTipTitle);
+	const titleEl = document.createElement("span");
+	titleEl.className = "float-win__title";
+	header.appendChild(titleEl);
 	const closeBtn = document.createElement("button");
 	closeBtn.className = "float-win__close";
 	closeBtn.textContent = "×";
-	closeBtn.addEventListener("click", _hideLeoTooltip);
+	if (onClose) closeBtn.addEventListener("click", onClose);
 	header.appendChild(closeBtn);
 
-	_leoTipBody = document.createElement("div");
-	_leoTipBody.className = "float-win__body";
+	const body = document.createElement("div");
+	body.className = "float-win__body";
 
-	_leoTip.appendChild(header);
-	_leoTip.appendChild(_leoTipBody);
-	document.body.appendChild(_leoTip);
+	win.appendChild(header);
+	win.appendChild(body);
+	document.body.appendChild(win);
 
-	makeDraggable(header, _leoTip);
+	makeDraggable(header, win);
 
+	return { win, header, titleEl, body };
+}
+
+let _leoTip = null;
+let _leoTipBody = null;
+let _leoTipTitle = null;
+function _ensureLeoTooltip() {
+	if (_leoTip) return _leoTip;
+	const fw = _makeFloatWin({
+		id: "leo-tooltip",
+		className: "float-win",
+		onClose: _hideLeoTooltip,
+	});
+	_leoTip = fw.win;
+	_leoTipTitle = fw.titleEl;
+	_leoTipBody = fw.body;
 	return _leoTip;
 }
 
@@ -232,7 +243,7 @@ function _findMarkAtPos(side, token, pos) {
 	return null;
 }
 
-function _renderSimpleTooltip(token, mark) {
+function _renderSimpleTooltip(mark) {
 	let html = "";
 	if (mark.timestamp) {
 		html += `<div class="leo-row"><span class="leo-sub">teacher typed: ${escHtml(mark.timestamp)}</span></div>`;
@@ -241,6 +252,19 @@ function _renderSimpleTooltip(token, mark) {
 		html += `<div class="leo-row"><span class="leo-sub">teacher removed: ${escHtml(mark.removal_ts)}</span></div>`;
 	}
 	return html;
+}
+
+function _positionLeoTipNear(tip, target) {
+	tip.style.display = "flex";
+	const r = target.getBoundingClientRect();
+	const tw = tip.offsetWidth;
+	const th = tip.offsetHeight;
+	let left = r.left;
+	let top = r.bottom + 6;
+	if (left + tw > window.innerWidth - 8) left = window.innerWidth - tw - 8;
+	if (top + th > window.innerHeight - 8) top = r.top - th - 6;
+	tip.style.left = `${Math.max(8, left)}px`;
+	tip.style.top = `${Math.max(8, top)}px`;
 }
 
 function _showLeoTooltip(target) {
@@ -264,17 +288,8 @@ function _showLeoTooltip(target) {
 		const label = mark.label || "matched";
 		const color = _labelColor(label);
 		_leoTipTitle.innerHTML = `<span style="color:${color};font-weight:bold">${escHtml(token)}</span> <span class="leo-sub">— ${escHtml(label)}</span>`;
-		_leoTipBody.innerHTML = _renderSimpleTooltip(token, mark);
-		tip.style.display = "flex";
-		const r = target.getBoundingClientRect();
-		const tw = tip.offsetWidth;
-		const th = tip.offsetHeight;
-		let left = r.left;
-		let top = r.bottom + 6;
-		if (left + tw > window.innerWidth - 8) left = window.innerWidth - tw - 8;
-		if (top + th > window.innerHeight - 8) top = r.top - th - 6;
-		tip.style.left = `${Math.max(8, left)}px`;
-		tip.style.top = `${Math.max(8, top)}px`;
+		_leoTipBody.innerHTML = _renderSimpleTooltip(mark);
+		_positionLeoTipNear(tip, target);
 		return;
 	}
 	_clearLeoHighlights();
@@ -291,16 +306,7 @@ function _showLeoTooltip(target) {
 		pos,
 		ghostOffset,
 	);
-	tip.style.display = "flex";
-	const r = target.getBoundingClientRect();
-	const tw = tip.offsetWidth;
-	const th = tip.offsetHeight;
-	let left = r.left;
-	let top = r.bottom + 6;
-	if (left + tw > window.innerWidth - 8) left = window.innerWidth - tw - 8;
-	if (top + th > window.innerHeight - 8) top = r.top - th - 6;
-	tip.style.left = `${Math.max(8, left)}px`;
-	tip.style.top = `${Math.max(8, top)}px`;
+	_positionLeoTipNear(tip, target);
 }
 
 function _hideLeoTooltip() {
@@ -413,22 +419,7 @@ function _applyMarkPairHighlight(target) {
 }
 
 function _applyLeoHighlights(target, data, side, pos, ghostOffset) {
-	target.classList.add("leo-highlight-active");
-	if (target.hasAttribute("data-swap-pos")) {
-		const partnerSide = target.getAttribute("data-swap-side");
-		target.classList.add(
-			partnerSide === "student"
-				? "leo-highlight-pair-extra"
-				: "leo-highlight-pair-missing",
-		);
-	}
-	_leoHighlighted.push(target);
-	if (target.hasAttribute("data-swap-pos")) {
-		_applySwapPartnerHighlight(target);
-	}
-	if (target.hasAttribute("data-insert-pos")) {
-		_applyInsertAnchorHighlight(target);
-	}
+	_addMarkPairHighlight(target);
 	const list = side === "teacher" ? data.teacher : data.student;
 	const idx = _findInstanceIdx(list, pos, ghostOffset);
 	const inst = idx >= 0 ? list[idx] : null;

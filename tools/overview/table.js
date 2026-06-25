@@ -1,11 +1,50 @@
 "use strict";
 
+function _extraLabel(name) {
+	for (const [pre, post] of _extraColumns.pairs || []) {
+		if (name === pre) return pre.replace(/^Pre\s+/, "");
+		if (name === post) return post.replace(/^Post\s+/, "");
+	}
+	return name;
+}
+
+function _topicShowMap() {
+	const m = {};
+	for (const a of ASSIGNMENTS) m[a.name] = { grade: false, status: false };
+	for (const s of _students) {
+		for (const e of s.lessons || []) {
+			const c = m[e.name];
+			if (!c) continue;
+			if (e.grade != null) c.grade = true;
+			if ((e.status || "") !== "") c.status = true;
+		}
+	}
+	return m;
+}
+
+function _overviewAssignmentSeps(hasFollow, ng) {
+	let lead = hasFollow ? "asn-div" : "asn-sep";
+	const take = () => {
+		const c = lead;
+		lead = "";
+		return c;
+	};
+	const seps = {};
+	if (ng.grade) seps.grade = take();
+	if (ng.status) seps.status = take();
+	seps.obs = take();
+	return seps;
+}
+
+function _followBarFrag(pct) {
+	return new FollowBar(pct).render();
+}
+
 function renderTable() {
 	const table = document.getElementById("grades-table");
 	table.innerHTML = "";
-	table.classList.toggle("hide-id", _hiddenCols.has("id"));
-	table.classList.toggle("hide-name", _hiddenCols.has("name"));
-	table.classList.toggle("hide-num", _hiddenCols.has("num"));
+	table.classList.remove("hide-id", "hide-name");
+	table.classList.add("hide-num");
 
 	const thead = document.createElement("thead");
 	const r1 = document.createElement("tr");
@@ -19,9 +58,6 @@ function renderTable() {
 	mkBase("col-id sticky-l");
 	mkBase("col-name sticky-l");
 	mkBase("col-num sticky-l");
-	mkBase();
-	mkBase();
-	mkBase();
 
 	const grp = (label, colspan, sep = false) => {
 		const th = document.createElement("th");
@@ -44,29 +80,15 @@ function renderTable() {
 		const th = col("", cls, sep);
 		const schema = _artefactSchema[(a.name || "").toLowerCase()];
 		if (Array.isArray(schema) && schema.length) {
-			const fmt = (code) =>
-				String(code).replace(/([^_]+)|_(\w+)/g, (m, main, sub) =>
-					main
-						? escHtml(main.toUpperCase())
-						: `<sub>${escHtml(sub.toLowerCase())}</sub>`,
-				);
 			th.innerHTML = schema
 				.map(
 					(e) =>
-						`<span style="display:inline-block;width:14px;margin:0 1px;` +
-						`text-align:center;font-size:9px;font-weight:600;text-transform:none">` +
-						fmt(e.code || e.key || "?") +
-						`</span>`,
+						`<span class="art-hdr-code">${artefactCodeHtml(
+							String(e.code || e.key || "?"),
+						)}</span>`,
 				)
 				.join("");
-			const tip = schema
-				.map(
-					(e) =>
-						`${artefactCodeHtml(String(e.code || e.key || "?"))}: ${escHtml(
-							e.label || "",
-						)}`,
-				)
-				.join("<br>");
+			const tip = buildArtefactSchemaTipHtml(schema);
 			if (tip) attachHtmlTip(th, tip);
 		} else {
 			th.textContent = "Obs";
@@ -77,36 +99,51 @@ function renderTable() {
 	col("ID", "col-id sticky-l");
 	col("Name", "col-name sticky-l");
 	col("#", "col-num sticky-l");
-	col("Self");
-	col("KPM");
-	col("Quiz");
+	_extraColumns.before.forEach((name, i) =>
+		col(_extraLabel(name), "", i === 0),
+	);
+	if (_extraColumns.before.length)
+		grp("Pre-Course Stats", _extraColumns.before.length, true);
 
+	const topicShow = _topicShowMap();
 	for (const a of ASSIGNMENTS) {
-		if (a.follow != null) {
+		const ng = topicShow[a.name] || { grade: false, status: false };
+		const asnExtra = (ng.grade ? 1 : 0) + (ng.status ? 1 : 0);
+		const lessonTopic = a.follow != null;
+		const seps = _overviewAssignmentSeps(lessonTopic, ng);
+		if (lessonTopic) {
 			_attachStudentsLink(
 				grp(`${a.name} Lesson`, 2, true),
 				a.name,
 				"lessons",
 			);
 			_attachStudentsLink(
-				grp("Assignment", 1, false),
+				grp("Assignment", 1 + asnExtra, false),
 				a.name,
 				"assignments",
 			);
 			_attachTimelineLink(col("Follow%", "lhd", true), a.name);
 			col("Obs", "lhd");
-			obsHeader(a, "");
 		} else {
-			_attachStudentsLink(grp("Assignment", 1, true), a.name, "assignments");
-			obsHeader(a, "", true);
+			_attachStudentsLink(
+				grp("Assignment", 1 + asnExtra, true),
+				a.name,
+				"assignments",
+			);
 		}
+		if (ng.grade) col("Grade", ("num " + seps.grade).trim());
+		if (ng.status) col("Status", seps.status);
+		obsHeader(a, seps.obs);
 	}
-	grp("", 5, true);
-	col("KPM", "", true);
-	col("Avg");
-	col("Follow%");
-	col("Int");
+	grp("Totals", 3, true);
+	if (_extraColumns.after.length)
+		grp("Post-Course Stats", _extraColumns.after.length, true);
+	col("Follow%", "asn-sep");
+	col("Interactions", "col-int");
 	col("Comments");
+	_extraColumns.after.forEach((name, i) =>
+		col(_extraLabel(name), "", i === 0),
+	);
 
 	thead.appendChild(r1);
 	thead.appendChild(r2);
@@ -115,13 +152,16 @@ function renderTable() {
 	const cdiffMin = Math.min(0, ..._students.map((s) => s.total_cdiff ?? 0));
 	const cdiffMax = Math.max(0, ..._students.map((s) => s.total_cdiff ?? 0));
 
+	const anyStatus = _hasAnyStatusValues();
 	const tbody = document.createElement("tbody");
 	const rows = _hideExcluded
 		? _students.filter((s) => !s.excluded || s.ai_flagged)
 		: _students;
 	rows.forEach((s) => {
 		const tr = document.createElement("tr");
-		tr.classList.add(s.passed_course ? "row-pass" : "row-fail");
+		if (anyStatus) {
+			tr.classList.add(s.passed_course ? "row-pass" : "row-fail");
+		}
 		if (s.excluded) tr.classList.add("row-excluded");
 		if (s.ai_flagged) tr.classList.add("row-ai");
 
@@ -139,6 +179,7 @@ function renderTable() {
 			const badges = renderArtefactBadges(entry.obs, schema);
 			if (badges) {
 				td.innerHTML = badges;
+				td.dataset.artefactCell = "1";
 				const tipHtml = buildArtefactSummaryHtml(entry.obs, schema);
 				if (tipHtml) attachHtmlTip(td, tipHtml);
 			} else {
@@ -150,9 +191,11 @@ function renderTable() {
 		tr.appendChild(cell(s.id, "id-cell col-id sticky-l"));
 		tr.appendChild(cell(studentLabel(s), "name-cell col-name sticky-l"));
 		tr.appendChild(cell(s.number, "num col-num sticky-l"));
-		tr.appendChild(cell(fmtN(s.self_eval), "num"));
-		tr.appendChild(cell(fmtN(s.pre_typing), "num"));
-		tr.appendChild(cell(fmtN(s.quiz_stii), "num"));
+		_extraColumns.before.forEach((name, i) => {
+			tr.appendChild(
+				cell(fmtN(s.extraVals[name]), "num" + (i === 0 ? " asn-sep" : "")),
+			);
+		});
 
 		const makeLessonClickable = (td, entry) => {
 			if (entry.follow == null) return;
@@ -167,67 +210,76 @@ function renderTable() {
 				return;
 			}
 			td.classList.add("clickable");
-			if (!td.title) td.title = `Open ${entry.name} assignment`;
+			if (!td.title && !td.dataset.artefactCell)
+				td.title = `Open ${entry.name} assignment`;
 			td.addEventListener("click", () => openAssignDiff(s, entry));
 		};
 
 		for (const entry of s.lessons) {
+			const ng = topicShow[entry.name] || { grade: false, status: false };
+			const gradeText = entry.grade == null ? "" : String(entry.grade);
+			const seps = _overviewAssignmentSeps(entry.hasFollowCol, ng);
 			if (entry.hasFollowCol) {
 				const fc = document.createElement("td");
 				fc.className = "follow asn-sep";
 				if (entry.follow != null) {
-					fc.textContent = entry.follow.toFixed(0) + "%";
-					fc.style.color = followFg(entry.follow);
+					fc.appendChild(_followBarFrag(entry.follow));
 				}
 				makeLessonClickable(fc, entry);
 				tr.appendChild(fc);
 
 				const _lo = (entry.lesson_obs || "").trim();
-				const lobs = cell(_lo === "_" ? "" : _lo);
-				if (_lo && _lo !== "_") {
-					lobs.style.fontWeight = "bold";
-					if (_lo.includes("<")) lobs.style.color = THEME.red;
+				const lobs = cell(
+					_lo === "_" ? "" : formatLessonObsHtml(_lo),
+					"",
+					true,
+				);
+				if (_lo && _lo !== "_" && _lo.includes("<")) {
+					lobs.style.color = THEME.red;
 				}
 				makeLessonClickable(lobs, entry);
 				tr.appendChild(lobs);
-
-				const aobs = obsCell(entry, "asn-col");
-				makeAssignClickable(aobs, entry);
-				tr.appendChild(aobs);
-			} else {
-				const aobs = obsCell(entry, "asn-sep asn-col");
-				makeAssignClickable(aobs, entry);
-				tr.appendChild(aobs);
 			}
+			if (ng.grade) {
+				const gc = cell(gradeText, ("num " + seps.grade).trim());
+				makeAssignClickable(gc, entry);
+				tr.appendChild(gc);
+			}
+			if (ng.status) {
+				const sc = cell(entry.status || "", seps.status);
+				makeAssignClickable(sc, entry);
+				tr.appendChild(sc);
+			}
+			const aobs = obsCell(entry, ("asn-col " + seps.obs).trim());
+			makeAssignClickable(aobs, entry);
+			tr.appendChild(aobs);
 		}
-
-		tr.appendChild(cell(fmtN(s.post_typing), "num asn-sep"));
-		tr.appendChild(cell(fmtN(s.avg_assignments, 1), "num"));
 
 		const pc = document.createElement("td");
-		pc.className = "num";
+		pc.className = "num asn-sep";
 		if (s.participation != null) {
-			pc.textContent = s.participation.toFixed(0) + "%";
-			pc.style.color = followFg(s.participation);
-		} else {
-			pc.textContent = "—";
-			pc.style.color = THEME.codeMuted;
+			pc.appendChild(_followBarFrag(s.participation));
 		}
-		pc.style.fontWeight = "700";
 		tr.appendChild(pc);
 
-		tr.appendChild(
-			cell(
-				formatInteractionCounts(s.total_a, s.total_q, s.total_h),
-				"col-int",
-				true,
-			),
+		const intTd = document.createElement("td");
+		intTd.className = "col-int";
+		intTd.appendChild(
+			new InteractionCell(s.total_a, s.total_q, s.total_h).render(),
 		);
+		tr.appendChild(intTd);
+
 		tr.appendChild(
 			followAvg(s) >= 0
 				? cdiffCell(s.total_cdiff, cdiffMin, cdiffMax)
 				: cell("", "num"),
 		);
+
+		_extraColumns.after.forEach((name, i) => {
+			tr.appendChild(
+				cell(fmtN(s.extraVals[name]), "num" + (i === 0 ? " asn-sep" : "")),
+			);
+		});
 		tr.addEventListener("click", () => {
 			tbody
 				.querySelectorAll("tr.selected")
@@ -238,13 +290,14 @@ function renderTable() {
 	});
 
 	if (rows.length > 0) {
-		_appendOverviewTotalsRow(tbody, rows);
+		_appendOverviewTotalsRow(tbody, rows, topicShow, cdiffMin, cdiffMax);
 	}
 
 	table.appendChild(tbody);
+	requestAnimationFrame(applyStickyColumns);
 }
 
-function _appendOverviewTotalsRow(tbody, rows) {
+function _appendOverviewTotalsRow(tbody, rows, topicShow, cdiffMin, cdiffMax) {
 	const tr = document.createElement("tr");
 	tr.className = "totals-row";
 
@@ -260,20 +313,17 @@ function _appendOverviewTotalsRow(tbody, rows) {
 		return vs.length ? vs.reduce((a, b) => a + Number(b), 0) : null;
 	};
 
-	const obsCounts = (entries, kind) => {
-		const counts = [];
-		for (const s of cohort) {
-			const entry = (s.lessons || []).find((l) => l.name === entries.name);
-			if (!entry) continue;
-			const raw = kind === "lesson" ? entry.lesson_obs : entry.obs;
-			const code = (raw || "").trim();
-			if (!ARTEFACT_CODE_RE.test(code)) continue;
-			for (let i = 0; i < code.length; i++) {
-				counts[i] = (counts[i] || 0) + (code[i] === "1" ? 1 : 0);
-			}
-		}
-		return counts;
-	};
+	const obsCounts = (entries, kind) =>
+		countArtefactColumn(
+			cohort.map((s) => {
+				const entry = (s.lessons || []).find(
+					(l) => l.name === entries.name,
+				);
+				if (!entry) return "";
+				const raw = kind === "lesson" ? entry.lesson_obs : entry.obs;
+				return (raw || "").trim();
+			}),
+		);
 
 	const addCell = (content, cls = "") => {
 		const td = document.createElement("td");
@@ -295,31 +345,44 @@ function _appendOverviewTotalsRow(tbody, rows) {
 		addCell(`${nonAiCount} students`, "name-cell col-name sticky-l"),
 	);
 	tr.appendChild(addCell(null, "col-num sticky-l"));
-	tr.appendChild(
-		addCell(fmtAvg(mean(cohort.map((s) => s.self_eval)), 0), "num"),
-	);
-	tr.appendChild(
-		addCell(fmtAvg(mean(cohort.map((s) => s.pre_typing)), 0), "num"),
-	);
-	tr.appendChild(
-		addCell(fmtAvg(mean(cohort.map((s) => s.quiz_stii)), 0), "num"),
-	);
+	_extraColumns.before.forEach((name, i) => {
+		tr.appendChild(
+			addCell(
+				fmtAvg(mean(cohort.map((s) => s.extraVals[name])), 0),
+				"num" + (i === 0 ? " asn-sep" : ""),
+			),
+		);
+	});
 
 	for (const a of ASSIGNMENTS) {
 		const hasFollow = a.follow != null;
+		const ng = (topicShow && topicShow[a.name]) || {
+			grade: false,
+			status: false,
+		};
 		const entries = cohort
 			.map((s) => (s.lessons || []).find((l) => l.name === a.name))
 			.filter(Boolean);
 
 		if (hasFollow) {
 			const followAvg = mean(entries.map((e) => e.follow));
-			const fc = addCell(fmtPct(followAvg), "follow asn-sep");
-			if (followAvg != null) {
-				fc.style.color = followFg(followAvg);
-				fc.style.fontWeight = "700";
-			}
+			const fc = addCell(null, "follow asn-sep");
+			if (followAvg != null) fc.appendChild(_followBarFrag(followAvg));
 			tr.appendChild(fc);
 			tr.appendChild(addCell(null));
+		}
+
+		const seps = _overviewAssignmentSeps(hasFollow, ng);
+		if (ng.grade) {
+			tr.appendChild(
+				addCell(
+					fmtAvg(mean(entries.map((e) => e.grade)), 1),
+					("num " + seps.grade).trim(),
+				),
+			);
+		}
+		if (ng.status) {
+			tr.appendChild(addCell(null, seps.status));
 		}
 
 		const asnObsCounts = obsCounts(a, "asn");
@@ -327,39 +390,38 @@ function _appendOverviewTotalsRow(tbody, rows) {
 		tr.appendChild(
 			addHtmlCell(
 				renderArtefactTotals(asnObsCounts, asnSchema),
-				"asn-col" + (hasFollow ? "" : " asn-sep"),
+				("asn-col " + seps.obs).trim(),
 			),
 		);
 	}
 
-	tr.appendChild(
-		addCell(fmtAvg(mean(cohort.map((s) => s.post_typing)), 0), "num asn-sep"),
-	);
-	tr.appendChild(
-		addCell(fmtAvg(mean(cohort.map((s) => s.avg_assignments)), 1), "num"),
-	);
-
 	const partAvg = mean(cohort.map((s) => s.participation));
-	const pc = addCell(fmtPct(partAvg), "num");
-	if (partAvg != null) {
-		pc.style.color = followFg(partAvg);
-		pc.style.fontWeight = "700";
-	}
+	const pc = addCell(null, "num asn-sep");
+	if (partAvg != null) pc.appendChild(_followBarFrag(partAvg));
 	tr.appendChild(pc);
 
+	const intTd = document.createElement("td");
+	intTd.className = "col-int";
+	intTd.appendChild(
+		new InteractionCell(
+			sum(cohort.map((s) => s.total_a)),
+			sum(cohort.map((s) => s.total_q)),
+			sum(cohort.map((s) => s.total_h)),
+		).render(),
+	);
+	tr.appendChild(intTd);
 	tr.appendChild(
-		addHtmlCell(
-			formatInteractionCounts(
-				sum(cohort.map((s) => s.total_a)),
-				sum(cohort.map((s) => s.total_q)),
-				sum(cohort.map((s) => s.total_h)),
+		cdiffCell(sum(cohort.map((s) => s.total_cdiff)), cdiffMin, cdiffMax),
+	);
+
+	_extraColumns.after.forEach((name, i) => {
+		tr.appendChild(
+			addCell(
+				fmtAvg(mean(cohort.map((s) => s.extraVals[name])), 0),
+				"num" + (i === 0 ? " asn-sep" : ""),
 			),
-			"col-int",
-		),
-	);
-	tr.appendChild(
-		addCell(fmtAvg(sum(cohort.map((s) => s.total_cdiff)), 0), "num"),
-	);
+		);
+	});
 
 	tbody.appendChild(tr);
 }
@@ -369,7 +431,7 @@ function cdiffCell(v, vmin, vmax) {
 	td.className = "num";
 	if (v == null || isNaN(v)) return td;
 	const n = +v;
-	td.textContent = n > 0 ? "+" + n : String(n);
+	td.textContent = n >= 0 ? "+" + n : String(n);
 	td.style.fontWeight = "700";
 	if (n === 0) {
 		td.style.color = THEME.black;
@@ -408,74 +470,6 @@ function applyStickyColumns() {
 		});
 }
 
-function _loadHiddenCols() {
-	try {
-		const raw = localStorage.getItem("overview.hiddenCols");
-		if (!raw) return;
-		const arr = JSON.parse(raw);
-		if (!Array.isArray(arr)) return;
-		_hiddenCols.clear();
-		for (const k of arr) _hiddenCols.add(k);
-	} catch {}
-}
-
-function _saveHiddenCols() {
-	try {
-		localStorage.setItem(
-			"overview.hiddenCols",
-			JSON.stringify([..._hiddenCols]),
-		);
-	} catch {}
-}
-
-function _renderColsPanel() {
-	const panel = document.getElementById("cols-panel");
-	if (!panel) return;
-	panel.innerHTML = "";
-	for (const { key, label } of COL_HIDE_KEYS) {
-		const lab = document.createElement("label");
-		const cb = document.createElement("input");
-		cb.type = "checkbox";
-		cb.checked = !_hiddenCols.has(key);
-		cb.addEventListener("change", () => {
-			if (cb.checked) _hiddenCols.delete(key);
-			else _hiddenCols.add(key);
-			_saveHiddenCols();
-			if (_students.length) renderTable();
-			requestAnimationFrame(applyStickyColumns);
-		});
-		lab.appendChild(cb);
-		lab.appendChild(document.createTextNode(" " + label));
-		panel.appendChild(lab);
-	}
-}
-
-function _colsPanelOutsideClick(e) {
-	const panel = document.getElementById("cols-panel");
-	const btn = document.getElementById("cols-btn");
-	if (!panel || !btn) return;
-	if (panel.contains(e.target) || btn.contains(e.target)) return;
-	panel.hidden = true;
-	document.removeEventListener("click", _colsPanelOutsideClick, true);
-}
-
-function _toggleColsPanel() {
-	const panel = document.getElementById("cols-panel");
-	if (!panel) return;
-	if (panel.hidden) {
-		_renderColsPanel();
-		panel.hidden = false;
-		setTimeout(() => {
-			document.addEventListener("click", _colsPanelOutsideClick, true);
-		}, 0);
-	} else {
-		panel.hidden = true;
-		document.removeEventListener("click", _colsPanelOutsideClick, true);
-	}
-}
-
-_loadHiddenCols();
-
 function studentLabel(s) {
 	if (!s) return "";
 	return s.name;
@@ -490,12 +484,6 @@ function studentLabelWithId(s) {
 function fmtN(v, dec = 0) {
 	if (v == null || isNaN(v)) return null;
 	return dec > 0 ? (+v).toFixed(dec) : Math.round(+v).toString();
-}
-function followFg(pct) {
-	if (pct < 40) return THEME.red;
-	if (pct < 60) return THEME.orange;
-	if (pct < 75) return THEME.label;
-	return THEME.textStrong;
 }
 function obsText(raw) {
 	return !raw || !raw.trim() ? "" : raw.trim();
@@ -530,7 +518,11 @@ function _attachStudentsLink(th, name, group) {
 		th.classList.add("clickable");
 		th.title = `Open ${name} students`;
 		th.addEventListener("click", () => {
-			navigateToStudents({ lesson: key, group: "assignments" });
+			navigateToStudents({
+				lesson: key,
+				group: "assignments",
+				basis: _activeBasis,
+			});
 		});
 		return;
 	}
@@ -539,7 +531,11 @@ function _attachStudentsLink(th, name, group) {
 	th.classList.add("clickable");
 	th.title = `Open ${name} students`;
 	th.addEventListener("click", () => {
-		navigateToStudents({ lesson: key, group: "lessons" });
+		navigateToStudents({
+			lesson: key,
+			group: "lessons",
+			basis: _activeBasis,
+		});
 	});
 }
 
@@ -548,7 +544,11 @@ function _attachTimelineLink(th, name) {
 	th.classList.add("clickable");
 	th.title = `Open ${name} timeline`;
 	th.addEventListener("click", () => {
-		navigateToTimeline({ lesson: name, group: "lessons" });
+		navigateToTimeline({
+			lesson: name,
+			group: "lessons",
+			basis: _activeBasis,
+		});
 	});
 }
 
@@ -558,7 +558,20 @@ function openDiff(lesson, group, student, followPct) {
 		alert(`Cannot find anon folder for "${student.name}" (no ID).`);
 		return;
 	}
-	const label = followPct != null ? followPct.toFixed(0) + "%" : "assignment";
-	const title = `${student.id ? String(student.id) + ". " : ""}${studentLabel(student)} (${label})`;
-	navigateToDifferentiator({ lesson, group, id: sid, title });
+	const title = diffStudentTitle(
+		student.id,
+		studentLabel(student),
+		followPct,
+		{
+			decimals: 0,
+			fallback: "assignment",
+		},
+	);
+	navigateToDifferentiator({
+		lesson,
+		group,
+		id: sid,
+		title,
+		mode: basisToDiffMode(_activeBasis),
+	});
 }

@@ -272,6 +272,25 @@ const _bottomChartVisible = {
 	hideCopiers: true,
 };
 
+function _restoreChartVisible(storeKey, obj) {
+	try {
+		const saved = JSON.parse(localStorage.getItem(storeKey) || "null");
+		if (!saved) return;
+		for (const k of Object.keys(obj)) {
+			if (typeof saved[k] === "boolean") obj[k] = saved[k];
+		}
+	} catch {}
+}
+
+function _saveChartVisible(storeKey, obj) {
+	try {
+		localStorage.setItem(storeKey, JSON.stringify(obj));
+	} catch {}
+}
+
+_restoreChartVisible("timeline_top_legend", _topChartVisible);
+_restoreChartVisible("timeline_bottom_legend", _bottomChartVisible);
+
 function _studentIsCopier(s) {
 	return !!s && typeof s.obs === "string" && s.obs.includes("<");
 }
@@ -281,14 +300,6 @@ function _visibleStudents() {
 	const out = _bottomChartVisible.hideCopiers
 		? _students.filter((s) => !_studentIsCopier(s))
 		: _students;
-	console.log(
-		"[copiers] _visibleStudents: hideCopiers=",
-		_bottomChartVisible.hideCopiers,
-		"total=",
-		_students.length,
-		"visible=",
-		out.length,
-	);
 	return out;
 }
 
@@ -336,15 +347,11 @@ const BOTTOM_LEGEND_ITEMS = [
 function setupBottomChartLegend() {
 	for (const { id, key, onChange } of BOTTOM_LEGEND_ITEMS) {
 		const cb = document.getElementById(id);
-		if (!cb) {
-			console.log("[copiers] legend checkbox NOT FOUND:", id);
-			continue;
-		}
+		if (!cb) continue;
 		cb.checked = _bottomChartVisible[key];
 		cb.onchange = () => {
 			_bottomChartVisible[key] = cb.checked;
-			if (key === "hideCopiers")
-				console.log("[copiers] toggled hideCopiers =", cb.checked);
+			_saveChartVisible("timeline_bottom_legend", _bottomChartVisible);
 			if (onChange) onChange();
 			scheduleRender();
 		};
@@ -387,10 +394,12 @@ function setupTopChartLegend(p) {
 	for (const { key, count } of items) {
 		const cb = document.getElementById("leg-" + key);
 		if (!cb) continue;
+		cb.checked = _topChartVisible[key];
 		const countEl = cb.closest("label")?.querySelector(".leg-count");
 		if (countEl) countEl.textContent = `(${count})`;
 		cb.onchange = () => {
 			_topChartVisible[key] = cb.checked;
+			_saveChartVisible("timeline_top_legend", _topChartVisible);
 			scheduleRender();
 		};
 	}

@@ -5,30 +5,15 @@ async function _loadFromDataSource(ds) {
 	const files = await ds.load();
 	_dirHandle = ds.rootHandle;
 	_allFiles = ds.files;
-	_isReadOnly = ds.isReadOnly;
+	_serverWritable = !!ds.serverWritable;
 	_lessonName = ds.rootName;
-	if (ds.rootHandle) {
-		try {
-			await _idbSet(IDB_KEY_LESSON_ROOT, ds.rootHandle);
-		} catch {}
-	}
 	const name = ds.rootName;
 	lessonNameEl.textContent = name;
 	lessonNameEl.classList.add("clickable");
 	document.title = "Students: " + name;
 	const saveBtn = document.getElementById("save-btn");
-	if (saveBtn) saveBtn.style.display = _isReadOnly ? "none" : "";
+	if (saveBtn) saveBtn.style.display = _canEditCells() ? "" : "none";
 	await loadXlsxFiles(files);
-}
-
-async function _tryAutoLoad() {
-	const handle = await loadSavedDirHandle();
-	if (!handle) return false;
-	const ds = new FsDataSource();
-	ds.rootHandle = handle;
-	ds.rootName = handle.name;
-	await _loadFromDataSource(ds);
-	return true;
 }
 
 async function _tryLoadFromUrlParams() {
@@ -41,29 +26,8 @@ async function _tryLoadFromUrlParams() {
 	return true;
 }
 
-async function openFolderPicker() {
-	try {
-		const ds = new FsDataSource();
-		await ds.open();
-		await _loadFromDataSource(ds);
-	} catch (e) {
-		if (e.name !== "AbortError") alert("Could not open folder: " + e.message);
-		showLoading(false);
-	}
-}
-
 async function loadXlsxFiles(files) {
-	if (typeof XLSX === "undefined") {
-		await new Promise((resolve) => {
-			const s = document.querySelector('script[src*="xlsx"]');
-			if (s) {
-				s.addEventListener("load", resolve, { once: true });
-				s.addEventListener("error", resolve, { once: true });
-			} else {
-				resolve();
-			}
-		});
-	}
+	await waitForXlsxBundle();
 	if (typeof XLSX === "undefined") {
 		alert(
 			"SheetJS not loaded — need an internet connection or xlsx.full.min.js next to this file.",
@@ -87,20 +51,6 @@ async function loadXlsxFiles(files) {
 				+t.slice(0, 2),
 				+t.slice(2, 4),
 				+t.slice(4, 6),
-			);
-			if (!Number.isNaN(ms)) return ms;
-		}
-		m = name.match(/_(\d{13})\b/);
-		if (m) return Number(m[1]);
-		m = name.match(/_(\d{10})\b/);
-		if (m) return Number(m[1]) * 1000;
-		m = name.match(/(\d{8})(?=\D*$)/);
-		if (m) {
-			const d = m[1];
-			const ms = Date.UTC(
-				+d.slice(0, 4),
-				+d.slice(4, 6) - 1,
-				+d.slice(6, 8),
 			);
 			if (!Number.isNaN(ms)) return ms;
 		}
@@ -138,8 +88,11 @@ async function loadXlsxFiles(files) {
 		_basisFiles.set(key, arr[0].f);
 	}
 
+	const _workingRemarksRe = /^remarks(?:_(\d{8}-\d{6}|\d{10,}))?\.xlsx$/;
 	_basisFallbackFile =
-		xlsxFiles.find((f) => f.name.toLowerCase() === "remarks.xlsx") || null;
+		xlsxFiles
+			.filter((f) => _workingRemarksRe.test(f.name.toLowerCase()))
+			.sort((a, b) => _recency(b) - _recency(a))[0] || null;
 
 	if (!_basisFallbackFile && _lessonName) {
 		const lessonLc = String(_lessonName)
@@ -162,31 +115,29 @@ async function loadXlsxFiles(files) {
 		legacyRemarksFile = remarksFiles[0] || null;
 	}
 
-	const _basisRank = (key) => {
-		if (key === GRADES_KEY) return -1;
-		const di = DEFAULT_BASIS_ORDER.indexOf(key);
-		if (di !== -1) return di;
-		const ri = REMARKS_BASES.findIndex((b) => b.key === key);
-		return ri === -1 ? 999 : 100 + ri;
-	};
-	const defaultCandidates = [];
-	if (_basisFallbackFile)
-		defaultCandidates.push({ key: GRADES_KEY, f: _basisFallbackFile });
-	for (const [key, f] of _basisFiles) defaultCandidates.push({ key, f });
-	defaultCandidates.sort((a, b) => {
-		const dr = _recency(b.f) - _recency(a.f);
-		if (dr !== 0) return dr;
-		return _basisRank(a.key) - _basisRank(b.key);
-	});
-
 	let _desiredBasis = _setParam;
 	if (!_desiredBasis && _paperMode) _desiredBasis = "ideal";
-	const _desiredBasisFile =
-		_desiredBasis && _basisFiles.has(_desiredBasis)
-			? _basisFiles.get(_desiredBasis)
-			: null;
+	if (!_desiredBasis || !_basisFiles.has(_desiredBasis)) {
+		_desiredBasis = null;
+		for (const key of ["ideal", "leo_star"]) {
+			if (_basisFiles.has(key)) {
+				_desiredBasis = key;
+				break;
+			}
+		}
+		if (!_desiredBasis) {
+			for (const { key } of REMARKS_BASES) {
+				if (_basisFiles.has(key)) {
+					_desiredBasis = key;
+					break;
+				}
+			}
+		}
+	}
+	const _desiredBasisFile = _desiredBasis
+		? _basisFiles.get(_desiredBasis)
+		: null;
 
-	const _topCandidate = defaultCandidates[0] || null;
 	let initialFile = null;
 	let overlayFile = null;
 	if (_basisFallbackFile) {
@@ -194,18 +145,12 @@ async function loadXlsxFiles(files) {
 		if (_desiredBasisFile) {
 			overlayFile = _desiredBasisFile;
 			_activeBasis = _desiredBasis;
-		} else if (_topCandidate && _topCandidate.key !== GRADES_KEY) {
-			overlayFile = _topCandidate.f;
-			_activeBasis = _topCandidate.key;
 		} else {
-			_activeBasis = GRADES_KEY;
+			_activeBasis = null;
 		}
 	} else if (_desiredBasisFile) {
 		initialFile = _desiredBasisFile;
 		_activeBasis = _desiredBasis;
-	} else if (_topCandidate) {
-		initialFile = _topCandidate.f;
-		_activeBasis = _topCandidate.key;
 	} else if (legacyRemarksFile) {
 		initialFile = legacyRemarksFile;
 		_activeBasis = null;
@@ -258,7 +203,7 @@ async function _loadRemarksFile(file) {
 			? "lesson"
 			: _lessonGroup === "assignments"
 				? "assignment"
-				: _followLabel === "SIM"
+				: result.scoreKind === "similarity"
 					? "assignment"
 					: "lesson");
 	_baseStudents = _students.map((s) => ({ ...s }));
@@ -308,19 +253,11 @@ async function _overlayBasisFollow(file) {
 	renderTable();
 }
 
-function _restoreBaseStudents() {
-	if (!_baseStudents) return;
-	_students = _baseStudents.map((s) => ({ ...s }));
-	_applyDirtyToStudents();
-	renderTable();
-}
-
 function _renderBasisPicker() {
 	const container = document.getElementById("basis-picker");
 	if (!container) return;
 
 	const options = [];
-	if (_basisFallbackFile) options.push({ key: GRADES_KEY, label: "Remarks" });
 	for (const { key, label } of REMARKS_BASES) {
 		if (_basisFiles.has(key)) options.push({ key, label });
 	}
@@ -346,10 +283,6 @@ function _renderBasisPicker() {
 				_activeBasis === "ideal" || _activeBasis === "minimal",
 			);
 			try {
-				if (_activeBasis === GRADES_KEY) {
-					_restoreBaseStudents();
-					return;
-				}
 				const f = _basisFiles.get(_activeBasis);
 				if (!f) return;
 				if (_baseStudents) {

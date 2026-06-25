@@ -26,16 +26,12 @@ let _diffMissingLangColor =
 	typeof localStorage === "undefined" ||
 	localStorage.getItem("diff-missing-lang-color") !== "off";
 
-const DIFF_MODE_OPTIONS = [
-	{ key: "minimal", label: "Minimal" },
-	{ key: "ideal", label: "Ideal" },
-	{ key: "", label: "LEO*" },
-	{ key: "leo", label: "LEO" },
-	{ key: "token-lcs-star", label: "LCS*" },
-	{ key: "token-lcs", label: "LCS" },
-	{ key: "line-git-star", label: "Git*" },
-	{ key: "line-git", label: "Git" },
-];
+const DIFF_MODE_OPTIONS = REMARKS_BASES.map((b) => ({
+	key: b.key,
+	label: b.label,
+}));
+
+const CLEAR_DIFF_KEY = "__clear__";
 
 function _refreshModeSelect() {
 	const modeSelect = document.getElementById("mode-select");
@@ -44,12 +40,32 @@ function _refreshModeSelect() {
 	const availableKeys = new Set(Object.keys(_allMarks));
 	modeSelect.innerHTML = "";
 
-	for (const optionDef of DIFF_MODE_OPTIONS) {
+	const knownKeys = new Set(DIFF_MODE_OPTIONS.map((o) => o.key));
+	const customDefs = [...availableKeys]
+		.filter((k) => !knownKeys.has(k))
+		.sort((a, b) => a.localeCompare(b))
+		.map((k) => ({ key: k, label: k }));
+	const curatedDefs = DIFF_MODE_OPTIONS.filter((o) =>
+		CURATED_MODES.has(o.key),
+	);
+	const methodDefs = DIFF_MODE_OPTIONS.filter(
+		(o) => !CURATED_MODES.has(o.key),
+	);
+	const ordered = [...curatedDefs, ...customDefs, ...methodDefs];
+
+	for (const optionDef of ordered) {
 		if (!availableKeys.has(optionDef.key)) continue;
 		const option = document.createElement("option");
 		option.value = optionDef.key;
 		option.textContent = optionDef.label;
 		modeSelect.appendChild(option);
+	}
+
+	if (typeof _embedMode === "undefined" || !_embedMode) {
+		const clearOpt = document.createElement("option");
+		clearOpt.value = CLEAR_DIFF_KEY;
+		clearOpt.textContent = "Clear";
+		modeSelect.appendChild(clearOpt);
 	}
 
 	const nextMode = defaultDiffModeKey(_allMarks, _diffMode);
@@ -126,12 +142,11 @@ function _activateFileTab(side, name) {
 }
 
 const _BORROW_ALIGNMENT_ORDER = [
-	"line-git",
-	"line-git-star",
-	"leo",
-	"",
-	"token-lcs",
-	"token-lcs-star",
+	"git",
+	"git_star",
+	"leo_star",
+	"lcs",
+	"lcs_star",
 ];
 
 let _borrowedAlignmentKey = null;
@@ -158,7 +173,7 @@ function _borrowedAlignments() {
 	return null;
 }
 
-const _BORROW_GHOSTS_ORDER = ["", "token-lcs-star", "line-git-star"];
+const _BORROW_GHOSTS_ORDER = ["leo_star", "lcs_star", "git_star"];
 
 function _borrowedTeacherGhosts(fileName) {
 	for (const mode of _BORROW_GHOSTS_ORDER) {
@@ -258,8 +273,7 @@ function _applyIncomingData(data) {
 }
 
 function _showLoading(on) {
-	const el = document.getElementById("loading");
-	if (el) el.style.display = on ? "flex" : "none";
+	showLoading(on);
 	document.body.classList.toggle("diff-loading", on);
 }
 
@@ -285,6 +299,8 @@ window.addEventListener("DOMContentLoaded", async () => {
 		_linePaddingEnabled = true;
 		const tt = document.getElementById("title-teacher");
 		if (tt) tt.textContent = "Starter Code";
+		const mc = document.getElementById("btn-missing-color");
+		if (mc) mc.style.display = "none";
 	}
 	if (toolParams.group === "assignments") {
 		document.body.classList.add("assignment");
@@ -296,6 +312,11 @@ window.addEventListener("DOMContentLoaded", async () => {
 	const modeSelect = document.getElementById("mode-select");
 	if (modeSelect) {
 		modeSelect.addEventListener("change", () => {
+			if (modeSelect.value === CLEAR_DIFF_KEY) {
+				if (typeof _curatedClearDiff === "function") _curatedClearDiff();
+				modeSelect.value = _diffMode ?? "";
+				return;
+			}
 			_diffMode = modeSelect.value;
 			modeSelect.classList.toggle(
 				"is-curated",
@@ -328,7 +349,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 				t.matches("input, textarea, select, [contenteditable=true]")
 			)
 				return;
-			const SHORTCUTS = { m: "minimal", i: "ideal", l: "" };
+			const SHORTCUTS = { m: "minimal", i: "ideal", l: "leo_star" };
 			const mode = SHORTCUTS[ev.key.toLowerCase()];
 			if (mode === undefined) return;
 			const hasOption = Array.from(modeSelect.options).some(

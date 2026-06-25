@@ -1,17 +1,103 @@
 "use strict";
 
-const REMARKS_BASES = [
-	{ key: "ideal", label: "Ideal" },
-	{ key: "minimal", label: "Minimal" },
-	{ key: "leo_star", label: "LEO*" },
-	{ key: "leo", label: "LEO" },
-	{ key: "lcs_star", label: "LCS*" },
-	{ key: "lcs", label: "LCS" },
-	{ key: "git_star", label: "Git*" },
-	{ key: "git", label: "Git" },
+const DIFF_METHODS = [
+	{
+		key: "ideal",
+		label: "Ideal",
+		filename: "diff_marks_ideal.json",
+		isCurated: true,
+		isStar: false,
+		baseMethod: null,
+		requiresKeylog: false,
+		selectable: true,
+	},
+	{
+		key: "minimal",
+		label: "Minimal",
+		filename: "diff_marks_minimal.json",
+		isCurated: true,
+		isStar: false,
+		baseMethod: null,
+		requiresKeylog: false,
+		selectable: true,
+	},
+	{
+		key: "leo_star",
+		label: "Leo*",
+		filename: "diff_marks_leo_star.json",
+		isCurated: false,
+		isStar: true,
+		baseMethod: "leo",
+		requiresKeylog: true,
+		selectable: true,
+	},
+	{
+		key: "lcs_star",
+		label: "LCS*",
+		filename: "diff_marks_lcs_star.json",
+		isCurated: false,
+		isStar: true,
+		baseMethod: "lcs",
+		requiresKeylog: true,
+		selectable: true,
+	},
+	{
+		key: "lcs",
+		label: "LCS",
+		filename: "diff_marks_lcs.json",
+		isCurated: false,
+		isStar: false,
+		baseMethod: "lcs",
+		requiresKeylog: false,
+		selectable: true,
+	},
+	{
+		key: "git_star",
+		label: "Git*",
+		filename: "diff_marks_git_star.json",
+		isCurated: false,
+		isStar: true,
+		baseMethod: "git",
+		requiresKeylog: true,
+		selectable: true,
+	},
+	{
+		key: "git",
+		label: "Git",
+		filename: "diff_marks_git.json",
+		isCurated: false,
+		isStar: false,
+		baseMethod: "git",
+		requiresKeylog: false,
+		selectable: true,
+	},
 ];
 
-const DEFAULT_BASIS_ORDER = ["ideal", "minimal", "leo_star", "leo"];
+const DIFF_MARKS_FILES = Object.fromEntries(
+	DIFF_METHODS.map((m) => [m.key, m.filename]),
+);
+
+const REMARKS_BASES = DIFF_METHODS.filter((m) => m.selectable).map((m) => ({
+	key: m.key,
+	label: m.label,
+}));
+
+const CURATED_MODES = new Set(
+	DIFF_METHODS.filter((m) => m.isCurated).map((m) => m.key),
+);
+
+const DIFF_MARKS_PRIORITY = ["ideal", "minimal", "leo_star"];
+
+const INTERACTION_KINDS = {
+	"teacher-question": { icon: "❓", label: "Teacher Question" },
+	"student-question": { icon: "🙋", label: "Student Question" },
+	"providing-help": { icon: "🤝", label: "Provided Help" },
+};
+
+function basisToDiffMode(basisKey) {
+	if (!basisKey) return null;
+	return basisKey in DIFF_MARKS_FILES ? basisKey : null;
+}
 
 function _cssVar(name) {
 	return getComputedStyle(document.documentElement)
@@ -94,45 +180,6 @@ function markColorFor(key) {
 	return MARK_COLORS[k] || null;
 }
 
-function _idbOpen(dbName = "lesson_tools") {
-	return new Promise((res, rej) => {
-		const req = indexedDB.open(dbName, 1);
-		req.onupgradeneeded = (e) => {
-			const db = e.target.result;
-			if (!db.objectStoreNames.contains("state")) {
-				db.createObjectStore("state");
-			}
-		};
-		req.onsuccess = (e) => res(e.target.result);
-		req.onerror = () => rej(req.error);
-	});
-}
-
-async function _idbGet(key, dbName = "lesson_tools") {
-	try {
-		const db = await _idbOpen(dbName);
-		return await new Promise((res) => {
-			const r = db.transaction("state").objectStore("state").get(key);
-			r.onsuccess = () => res(r.result ?? null);
-			r.onerror = () => res(null);
-		});
-	} catch {
-		return null;
-	}
-}
-
-async function _idbSet(key, value, dbName = "lesson_tools") {
-	try {
-		const db = await _idbOpen(dbName);
-		await new Promise((res, rej) => {
-			const tx = db.transaction("state", "readwrite");
-			tx.objectStore("state").put(value, key);
-			tx.oncomplete = res;
-			tx.onerror = rej;
-		});
-	} catch {}
-}
-
 function parseCsv(text) {
 	const lines = String(text || "")
 		.replace(/^\uFEFF/, "")
@@ -156,62 +203,6 @@ async function readCsvText(file) {
 		return stripBom(new TextDecoder("windows-1252").decode(bytes));
 	} catch (e) {}
 	return stripBom(new TextDecoder("latin1").decode(bytes));
-}
-
-const ARTEFACT_SEVERITY_COLORS = {
-	high: () => THEME.red,
-	medium: () => THEME.orange,
-	med: () => THEME.orange,
-	low: () => THEME.yellow,
-};
-
-function artefactFiredColorFor(severity) {
-	const key = String(severity || "")
-		.trim()
-		.toLowerCase();
-	const fn = ARTEFACT_SEVERITY_COLORS[key] || ARTEFACT_SEVERITY_COLORS.high;
-	return fn();
-}
-
-function parseArtefactLabelsCsv(text) {
-	const { header, rows } = parseCsv(text);
-	const keyIdx = header.findIndex((h) => /^key$/i.test(h));
-	const labelIdx = header.findIndex((h) => /^label$/i.test(h));
-	const codeIdx = header.findIndex((h) => /^code$/i.test(h));
-	const sevIdx = header.findIndex((h) => /^severity$/i.test(h));
-	if (keyIdx === -1 || labelIdx === -1) return [];
-	const out = [];
-	for (const parts of rows) {
-		const key = parts[keyIdx];
-		const label = parts[labelIdx];
-		if (!key || !label) continue;
-		const severity =
-			sevIdx !== -1 ? (parts[sevIdx] || "").trim().toLowerCase() : "high";
-		const code = codeIdx !== -1 ? (parts[codeIdx] || "").trim() : "";
-		out.push({ key, label, code, severity: severity || "high" });
-	}
-	return out;
-}
-
-async function loadArtefactLabelsFromHandle(dirHandle) {
-	if (!dirHandle) return [];
-	try {
-		const fh = await dirHandle.getFileHandle("artefact_labels.csv");
-		const file = await fh.getFile();
-		return parseArtefactLabelsCsv(await readFileText(file));
-	} catch {
-		return [];
-	}
-}
-
-function loadArtefactLabelsFromFileMap(fileMap) {
-	if (!fileMap) return null;
-	for (const [k, file] of fileMap) {
-		if (k.endsWith("/artefact_labels.csv") || k === "artefact_labels.csv") {
-			return file;
-		}
-	}
-	return null;
 }
 
 function parseStudentIdNameMap(text) {
@@ -270,41 +261,14 @@ const MEDIA_EXT =
 const CODE_EXT = /\.(html|css|js|py)$/i;
 const DOC_EXT = /\.docx$/i;
 
-async function pickFolderWithMemory(idbKey = "lastDir", dbName = undefined) {
-	const lastDir = await _idbGet(idbKey, dbName);
-	const opts = { mode: "read" };
-	if (lastDir) opts.startIn = lastDir;
-	const handle = await window.showDirectoryPicker(opts);
-	_idbSet(idbKey, handle, dbName);
-	return handle;
+async function pickFolder() {
+	return window.showDirectoryPicker({ mode: "read" });
 }
 
-async function pickFilesWithMemory(
-	opts = {},
-	idbKey = "lastDir",
-	dbName = undefined,
-) {
-	const lastDir = await _idbGet(idbKey, dbName);
-	if (lastDir) opts.startIn = lastDir;
+async function pickFiles(opts = {}) {
 	const handles = await window.showOpenFilePicker(opts);
-	if (handles && handles.length) _idbSet(idbKey, handles[0], dbName);
 	return handles || [];
 }
-
-async function loadSavedDirHandle(idbKey = "lastDir", dbName = undefined) {
-	const handle = await _idbGet(idbKey, dbName);
-	if (!handle || handle.kind !== "directory") return null;
-	try {
-		if ((await handle.requestPermission({ mode: "read" })) !== "granted")
-			return null;
-	} catch {
-		return null;
-	}
-	return handle;
-}
-
-const IDB_KEY_COURSE_ROOT = "courseRoot";
-const IDB_KEY_LESSON_ROOT = "lessonRoot";
 
 function parseToolParams(search = location.search) {
 	const p = new URLSearchParams(search);
@@ -312,6 +276,7 @@ function parseToolParams(search = location.search) {
 	const group = p.get("group") || null;
 	const id = p.get("id") || null;
 	const mode = p.get("mode") || null;
+	const basis = p.get("basis") || null;
 	const title = p.get("title") || null;
 	const parseIdList = (raw) =>
 		raw
@@ -340,6 +305,7 @@ function parseToolParams(search = location.search) {
 		group,
 		id,
 		mode,
+		basis,
 		title,
 		ids,
 		star,
@@ -348,60 +314,6 @@ function parseToolParams(search = location.search) {
 		ts,
 		speed,
 	};
-}
-
-async function resolveLessonHandle({ lesson, group } = {}) {
-	if (!lesson) return null;
-	if (!group) {
-		const lessonRoot = await _idbGet(IDB_KEY_LESSON_ROOT);
-		if (
-			lessonRoot &&
-			lessonRoot.kind === "directory" &&
-			lessonRoot.name === lesson
-		) {
-			try {
-				if (
-					(await lessonRoot.requestPermission({ mode: "read" })) ===
-					"granted"
-				) {
-					return { handle: lessonRoot, group: null };
-				}
-			} catch {}
-		}
-	}
-	const tryGroups = group ? [group] : ["lessons", "assignments"];
-	const courseRoot = await _idbGet(IDB_KEY_COURSE_ROOT);
-	if (courseRoot && courseRoot.kind === "directory") {
-		try {
-			if (
-				(await courseRoot.requestPermission({ mode: "read" })) === "granted"
-			) {
-				for (const g of tryGroups) {
-					try {
-						const groupHandle = await courseRoot.getDirectoryHandle(g);
-						const lessonHandle =
-							await groupHandle.getDirectoryHandle(lesson);
-						return { handle: lessonHandle, group: g };
-					} catch {}
-				}
-			}
-		} catch {}
-	}
-	const lessonRoot = await _idbGet(IDB_KEY_LESSON_ROOT);
-	if (
-		lessonRoot &&
-		lessonRoot.kind === "directory" &&
-		lessonRoot.name === lesson
-	) {
-		try {
-			if (
-				(await lessonRoot.requestPermission({ mode: "read" })) === "granted"
-			) {
-				return { handle: lessonRoot, group: group || null };
-			}
-		} catch {}
-	}
-	return null;
 }
 
 function buildToolUrl(
@@ -418,6 +330,7 @@ function buildToolUrl(
 		autoplay,
 		ts,
 		speed,
+		basis,
 	} = {},
 ) {
 	const params = new URLSearchParams();
@@ -425,6 +338,7 @@ function buildToolUrl(
 	if (group) params.set("group", group);
 	if (id) params.set("id", id);
 	if (mode) params.set("mode", mode);
+	if (basis) params.set("basis", basis);
 	if (title) params.set("title", title);
 	if (ids && ids.length)
 		params.set("ids", Array.isArray(ids) ? ids.join(",") : ids);
@@ -485,16 +399,7 @@ function navigateToSimulator(args = {}) {
 async function listServerDir(path) {
 	const resp = await fetch(path);
 	if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-	const text = await resp.text();
-	try {
-		return JSON.parse(text);
-	} catch {
-		const matches = [...text.matchAll(/href="([^/"]+)\/?"/g)];
-		return matches.map((m) => ({
-			name: m[1],
-			kind: m[1].includes(".") ? "file" : "directory",
-		}));
-	}
+	return JSON.parse(await resp.text());
 }
 
 async function waitForXlsxBundle() {
@@ -515,20 +420,78 @@ function showLoading(on) {
 	if (el) el.style.display = on ? "flex" : "none";
 }
 
-const DIFF_MARKS_FILES = {
-	"": "diff_marks_leo_star.json",
-	leo: "diff_marks_leo.json",
-	"token-lcs": "diff_marks_lcs.json",
-	"token-lcs-star": "diff_marks_lcs_star.json",
-	"line-git": "diff_marks_git.json",
-	"line-git-star": "diff_marks_git_star.json",
-	ideal: "diff_marks_ideal.json",
-	minimal: "diff_marks_minimal.json",
-};
+function makeHiddenColsStore(storageKey, set, opts = {}) {
+	return {
+		load() {
+			try {
+				const arr = JSON.parse(localStorage.getItem(storageKey) || "null");
+				if (!Array.isArray(arr)) return;
+				if (opts.clearFirst) set.clear();
+				for (const k of arr) {
+					const mapped = opts.migrate ? opts.migrate(k) : null;
+					if (mapped) for (const m of mapped) set.add(m);
+					else set.add(k);
+				}
+			} catch {}
+		},
+		save() {
+			try {
+				localStorage.setItem(storageKey, JSON.stringify([...set]));
+			} catch {}
+		},
+	};
+}
 
-const DIFF_MARKS_PRIORITY = ["ideal", "minimal", "", "leo"];
-
-const CURATED_MODES = new Set(["ideal", "minimal"]);
+function makeColsPanel({
+	colHideKeys,
+	hiddenCols,
+	onChange,
+	panelId = "cols-panel",
+	btnId = "cols-btn",
+}) {
+	function outsideClick(e) {
+		const panel = document.getElementById(panelId);
+		const btn = document.getElementById(btnId);
+		if (!panel || !btn) return;
+		if (panel.contains(e.target) || btn.contains(e.target)) return;
+		panel.hidden = true;
+		document.removeEventListener("click", outsideClick, true);
+	}
+	function render() {
+		const panel = document.getElementById(panelId);
+		if (!panel) return;
+		panel.innerHTML = "";
+		for (const { key, label } of colHideKeys) {
+			const lab = document.createElement("label");
+			const cb = document.createElement("input");
+			cb.type = "checkbox";
+			cb.checked = !hiddenCols.has(key);
+			cb.addEventListener("change", () => {
+				if (cb.checked) hiddenCols.delete(key);
+				else hiddenCols.add(key);
+				onChange();
+			});
+			lab.appendChild(cb);
+			lab.appendChild(document.createTextNode(" " + label));
+			panel.appendChild(lab);
+		}
+	}
+	function toggle() {
+		const panel = document.getElementById(panelId);
+		if (!panel) return;
+		if (panel.hidden) {
+			render();
+			panel.hidden = false;
+			setTimeout(() => {
+				document.addEventListener("click", outsideClick, true);
+			}, 0);
+		} else {
+			panel.hidden = true;
+			document.removeEventListener("click", outsideClick, true);
+		}
+	}
+	return { render, toggle };
+}
 
 function diffModeFromFilename(filename) {
 	const lower = String(filename || "").toLowerCase();
@@ -543,8 +506,7 @@ function defaultDiffModeKey(allMarks, requestedMode = null) {
 	if (requestedMode != null && has(requestedMode)) return requestedMode;
 	if (has("ideal")) return "ideal";
 	if (has("minimal")) return "minimal";
-	if (has("")) return "";
-	if (has("leo")) return "leo";
+	if (has("leo_star")) return "leo_star";
 	return Object.keys(allMarks)[0] ?? null;
 }
 
@@ -559,162 +521,60 @@ function escAttr(s) {
 	return escHtml(s).replace(/"/g, "&quot;");
 }
 
-function isArtefactPattern(raw) {
-	const s = (raw ?? "").trim();
-	return s.length > 0 && /^[01]+$/.test(s);
-}
-
-function formatInteractionCounts(a, q, h) {
-	const fmt = (n, emoji) => {
-		const c = Math.round(+n);
-		if (!(c > 0)) return null;
-		const inner = c === 1 ? emoji : `${emoji}&nbsp;${c}`;
-		return `<span class="ia-box">${inner}</span>`;
-	};
-	return [fmt(a, "🙋"), fmt(q, "❓"), fmt(h, "🤝")].filter(Boolean).join("");
-}
-
-function artefactCodeHtml(code) {
-	return escHtml(String(code)).replace(/_(\w+)/g, "<sub>$1</sub>");
-}
-
-function renderArtefactBadges(raw, schema) {
-	const code = (raw ?? "").trim();
-	if (!isArtefactPattern(code)) return null;
-	const schemaArr = Array.isArray(schema) ? schema : [];
-	return code
-		.split("")
-		.map((ch, i) => {
-			const fired = ch === "1";
-			const sev = (schemaArr[i] && schemaArr[i].severity) || "high";
-			const clr = fired ? artefactFiredColorFor(sev) : THEME.artefactOk;
-			return (
-				`<span style="display:inline-block;` +
-				`width:14px;height:14px;border-radius:2px;margin:0 1px;` +
-				`vertical-align:middle;background:${clr}"></span>`
-			);
-		})
-		.join("");
-}
-
-function renderArtefactTotals(counts, schema) {
-	const schemaArr = Array.isArray(schema) ? schema : [];
-	const n = Math.max((counts || []).length, schemaArr.length);
-	if (!n) return "";
-	const parts = [];
-	for (let i = 0; i < n; i++) {
-		const count = (counts && counts[i]) || 0;
-		const sev = (schemaArr[i] && schemaArr[i].severity) || "high";
-		const clr = count > 0 ? artefactFiredColorFor(sev) : THEME.artefactOk;
-		parts.push(
-			`<span style="display:inline-block;` +
-				`min-width:14px;height:14px;border-radius:2px;margin:0 1px;` +
-				`vertical-align:middle;background:${clr};color:white;` +
-				`font-size:10px;font-weight:bold;text-align:center;` +
-				`line-height:14px;padding:0 2px">${count}</span>`,
-		);
-	}
-	return parts.join("");
-}
-
-function renderArtefactCellSquare(fired, entry) {
-	const sev = (entry && entry.severity) || "high";
-	const clr = fired ? artefactFiredColorFor(sev) : THEME.artefactOk;
-	return (
-		`<span style="display:inline-block;width:14px;height:14px;` +
-		`border-radius:2px;vertical-align:middle;background:${clr}"></span>`
+function formatLessonObs(text) {
+	const s = text == null ? "" : String(text);
+	if (!/[<>]/.test(s)) return s;
+	const sub = "₀₁₂₃₄₅₆₇₈₉";
+	return s.replace(
+		/C(\d*)/g,
+		(_m, digits) => "🤥" + digits.replace(/\d/g, (d) => sub[+d]),
 	);
 }
 
-function renderArtefactTotalOne(count, entry) {
-	const sev = (entry && entry.severity) || "high";
-	const clr = count > 0 ? artefactFiredColorFor(sev) : THEME.artefactOk;
-	return (
-		`<span style="display:inline-block;min-width:14px;height:14px;` +
-		`border-radius:2px;vertical-align:middle;background:${clr};color:white;` +
-		`font-size:10px;font-weight:bold;text-align:center;line-height:14px;` +
-		`padding:0 2px">${count}</span>`
-	);
+function formatLessonObsHtml(text) {
+	return escHtml(formatLessonObs(text))
+		.replace(/&lt;/g, "<strong>&lt;</strong>")
+		.replace(/&gt;/g, "<strong>&gt;</strong>");
 }
 
-function buildArtefactSummaryHtml(raw, schema) {
-	const code = (raw ?? "").trim();
-	if (!isArtefactPattern(code)) return "";
-	const schemaArr = Array.isArray(schema) ? schema : [];
-	const sq = (clr) =>
-		`<span style="display:inline-block;width:11px;height:11px;border-radius:2px;` +
-		`vertical-align:middle;margin-right:6px;background:${clr}"></span>`;
-	const lines = [];
-	const n = Math.max(code.length, schemaArr.length);
-	for (let i = 0; i < n; i++) {
-		const entry = schemaArr[i];
-		const fired = code[i] === "1";
-		const label = entry && entry.label ? entry.label : `bit ${i + 1}`;
-		const entryCode = entry && (entry.code || entry.key);
-		const codeHtml = entryCode ? `${artefactCodeHtml(entryCode)}: ` : "";
-		const clr = fired
-			? artefactFiredColorFor((entry && entry.severity) || "high")
-			: THEME.artefactOk;
-		const style = fired ? "font-weight:bold" : `color:${THEME.muted}`;
-		lines.push(
-			`<div style="${style}">${sq(clr)}${codeHtml}${escHtml(label)}</div>`,
-		);
-	}
-	return lines.join("");
+function diffStudentTitle(id, name, pct, opts = {}) {
+	const decimals = opts.decimals != null ? opts.decimals : 1;
+	const fallback = opts.fallback != null ? opts.fallback : "N/A";
+	const label = pct != null ? pct.toFixed(decimals) + "%" : fallback;
+	return `${id ? id + ". " : ""}${name} (${label})`;
 }
 
-let _SHARED_TIP_EL = null;
-
-function _ensureSharedTip() {
-	if (_SHARED_TIP_EL && document.body.contains(_SHARED_TIP_EL))
-		return _SHARED_TIP_EL;
-	let el = document.getElementById("shared-html-tip");
-	if (!el) {
-		el = document.createElement("div");
-		el.id = "shared-html-tip";
-		el.style.cssText =
-			"position:fixed;display:none;background:" +
-			THEME.bg +
-			";color:" +
-			THEME.textStrong +
-			";font-size:11px;font-family:Consolas,monospace;padding:6px 10px;" +
-			"border:1px solid " +
-			THEME.muted +
-			";border-radius:4px;pointer-events:none;z-index:10000;" +
-			"max-width:640px;box-shadow:0 2px 8px rgba(0,0,0,0.25);line-height:1.45;";
-		document.body.appendChild(el);
-	}
-	_SHARED_TIP_EL = el;
-	return el;
+function downloadBlob(data, filename, mime) {
+	const blob =
+		data instanceof Blob
+			? data
+			: new Blob([data], mime ? { type: mime } : undefined);
+	const url = URL.createObjectURL(blob);
+	const a = document.createElement("a");
+	a.href = url;
+	a.download = filename;
+	document.body.appendChild(a);
+	a.click();
+	a.remove();
+	URL.revokeObjectURL(url);
 }
 
-function _moveSharedTip(e) {
-	const el = _SHARED_TIP_EL;
-	if (!el) return;
-	const tw = el.offsetWidth;
-	const th = el.offsetHeight;
-	let tx = e.clientX + 14;
-	let ty = e.clientY - 8;
-	if (tx + tw > window.innerWidth - 8) tx = e.clientX - tw - 14;
-	if (ty + th > window.innerHeight - 8) ty = e.clientY - th - 8;
-	el.style.left = tx + "px";
-	el.style.top = ty + "px";
-}
+const _sharedHtmlTip = new Tooltip({
+	createId: "shared-html-tip",
+	inlineStyle:
+		"position:fixed;display:none;background:" +
+		THEME.bg +
+		";color:" +
+		THEME.textStrong +
+		";font-size:11px;font-family:Consolas,monospace;padding:6px 10px;" +
+		"border:1px solid " +
+		THEME.muted +
+		";border-radius:4px;pointer-events:none;z-index:10000;" +
+		"max-width:640px;box-shadow:0 2px 8px rgba(0,0,0,0.25);line-height:1.45;",
+});
 
 function attachHtmlTip(el, htmlOrFn) {
-	const get = typeof htmlOrFn === "function" ? htmlOrFn : () => htmlOrFn;
-	el.addEventListener("mouseenter", (e) => {
-		const html = get();
-		if (!html) return;
-		const tip = _ensureSharedTip();
-		tip.innerHTML = html;
-		tip.style.display = "block";
-		_moveSharedTip(e);
-	});
-	el.addEventListener("mousemove", _moveSharedTip);
-	el.addEventListener("mouseleave", () => {
-		if (_SHARED_TIP_EL) _SHARED_TIP_EL.style.display = "none";
-	});
+	_sharedHtmlTip.attachHtml(el, htmlOrFn);
 }
 
 function readFileText(file) {
@@ -781,7 +641,6 @@ function newTokenRegex() {
 }
 
 const OBS_COL_RE = /^obs\.?$/i;
-const ARTEFACT_CODE_RE = /^[01]+$/;
 
 function round1(x) {
 	return Math.round(x * 10) / 10;
@@ -833,6 +692,27 @@ function parseFollowEvents(descText, sessionDate) {
 		};
 		if (m[4] != null) ev.sim = parseFloat(m[4]);
 		events.push(ev);
+	}
+	return events;
+}
+
+function parseSimilarityEvents(descText) {
+	const events = [];
+	const text = String(descText || "");
+	const re =
+		/([+-])(.+?)(?:\s+\(x(\d+)\)|\s+\((\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?)\))?(?:\s*~([0-9.]+))?(?=,\s+[+-]|$)/g;
+	let m;
+	while ((m = re.exec(text)) !== null) {
+		const kind = m[1] === "-" ? "missing" : "extra";
+		const token = m[2];
+		if (m[4]) {
+			const ev = { kind, token, ts: _hmsToSeconds(m[4]) };
+			if (m[5] != null) ev.sim = parseFloat(m[5]);
+			events.push(ev);
+		} else {
+			const count = m[3] ? parseInt(m[3]) : 1;
+			for (let i = 0; i < count; i++) events.push({ kind, token });
+		}
 	}
 	return events;
 }
@@ -936,6 +816,26 @@ async function buildDiffPayloadData(fileMap, studentDir) {
 			if (json) allMarks[mode] = json;
 		}),
 	);
+
+	const knownFnames = new Set(
+		Object.values(DIFF_MARKS_FILES).map((n) => n.toLowerCase()),
+	);
+	const customEntries = [];
+	for (const [p, f] of entries) {
+		if (!p.startsWith(studentDir)) continue;
+		if (p.indexOf("/", studentDir.length) !== -1) continue;
+		const m = /^diff_marks_(.+)\.json$/i.exec(f.name);
+		if (!m || knownFnames.has(f.name.toLowerCase())) continue;
+		customEntries.push([m[1], f]);
+	}
+	await Promise.all(
+		customEntries.map(async ([key, f]) => {
+			try {
+				const json = JSON.parse(await readFileText(f));
+				if (json) allMarks[key] = json;
+			} catch {}
+		}),
+	);
 	const pendingMarks = Promise.all(
 		restModes.map(async (mode) => [mode, await fetchMark(mode)]),
 	).then((pairs) => {
@@ -1025,7 +925,6 @@ function _buildDiffPayload(data) {
 		mode: defaultMode,
 		teacherMarks: defaultMarks?.teacher_files ?? null,
 		studentMarks: defaultMarks?.student_files ?? null,
-		caseSensitive: defaultMarks?.case_sensitive === true,
 		title: data.title,
 		teacherBaseUrl: data.teacherBaseUrl ?? null,
 		studentBaseUrl: data.studentBaseUrl ?? null,

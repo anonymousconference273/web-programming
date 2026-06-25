@@ -64,12 +64,7 @@ function _setHeaderLabel(el, spec) {
 }
 
 function _artefactHeaderTipHtml() {
-	return (_artefactSchema || [])
-		.map(
-			(e) =>
-				`${artefactCodeHtml(String(e.code || e.key || "?"))}: ${escHtml(e.label || "")}`,
-		)
-		.join("<br>");
+	return buildArtefactSchemaTipHtml(_artefactSchema || []);
 }
 
 function renderTable() {
@@ -84,6 +79,9 @@ function renderTable() {
 	const showName = _paperMode ? true : !_hiddenCols.has("name");
 	const showNum = _paperMode ? false : !_hiddenCols.has("num");
 	const showFollow = _paperMode ? _simParam : !_hiddenCols.has("follow");
+
+	const showInteractions =
+		!_paperMode && _hasInteractions && !_hiddenCols.has("interactions");
 
 	const showLangs = !_paperMode && !_hiddenCols.has("languages");
 	const presentLangs = showLangs
@@ -135,8 +133,8 @@ function renderTable() {
 			sortKey: "remark:" + col,
 		});
 	}
-	if (!_paperMode && _hasInteractions)
-		specs.push({ cls: "col-int", label: "INT", sortKey: "int" });
+	if (showInteractions)
+		specs.push({ cls: "col-int", label: "Interactions", sortKey: "int" });
 	if (showFollow)
 		specs.push({ cls: "col-follow", label: _followLabel, sortKey: "follow" });
 	for (const def of presentLangs)
@@ -150,9 +148,9 @@ function renderTable() {
 		computeFingerprints(_students);
 	const showFp1 =
 		showFingerprint &&
-		(_paperMode ? _fingerprintParam : !_hiddenCols.has("fingerprint1"));
-	const showFp2 = !_paperMode && hasAnyFp2 && !_hiddenCols.has("fingerprint2");
-	const showFp3 = !_paperMode && hasAnyFp3 && !_hiddenCols.has("fingerprint3");
+		(_paperMode ? _fingerprintParam : !_hiddenCols.has("fingerprint"));
+	const showFp2 = !_paperMode && hasAnyFp2 && !_hiddenCols.has("fingerprint");
+	const showFp3 = !_paperMode && hasAnyFp3 && !_hiddenCols.has("fingerprint");
 	if (showFp1)
 		specs.push({
 			cls: "col-fingerprint col-fp1",
@@ -162,13 +160,13 @@ function renderTable() {
 	if (showFp2)
 		specs.push({
 			cls: "col-fingerprint col-fp2",
-			label: "Fingerprint (E)",
+			label: "",
 			sortKey: "fingerprint2",
 		});
 	if (showFp3)
 		specs.push({
 			cls: "col-fingerprint col-fp3",
-			label: "Fingerprint (C)",
+			label: "",
 			sortKey: "fingerprint3",
 		});
 
@@ -290,7 +288,7 @@ function renderTable() {
 					const cell = document.createElement("td");
 					cell.className = "col-remark col-obs col-artefact";
 					_renderArtefactCell(cell, s, rk.col, i, code);
-					if (_isReadOnly) openOnClick(cell);
+					if (!_canEditCells()) openOnClick(cell);
 					tr.appendChild(cell);
 				});
 				continue;
@@ -299,13 +297,15 @@ function renderTable() {
 			let cls = "col-remark";
 			const isObs = OBS_COL_RE.test(rk.col);
 			const isGrade = /^grade$/i.test(rk.col);
+			const isStatus = /^status$/i.test(rk.col);
 			const isComments = /^comments?$/i.test(rk.col);
 			const isExpected = /^expected$/i.test(rk.col);
 			if (isObs) cls += " col-obs";
 			else if (isGrade) cls += " col-grade";
+			else if (isStatus) cls += " col-status";
 			else if (isComments) cls += " col-comments";
 			el.className = cls;
-			const editable = isObs || isGrade || isComments;
+			const editable = isObs || isGrade || isStatus || isComments;
 			if (isComments) {
 				const inner = document.createElement("div");
 				inner.className = "comments-inner";
@@ -316,11 +316,13 @@ function renderTable() {
 			} else {
 				const obsVal = isObs && (rk.val === "_" || !rk.val) ? "" : rk.val;
 				if (isObs) {
-					_makeCellEditable(el, s, rk.col);
 					_renderObsCell(el, obsVal);
-					el.addEventListener("blur", () => {
-						_renderObsCell(el, el.textContent);
-					});
+					if (_mode !== "lesson") {
+						_makeCellEditable(el, s, rk.col);
+						el.addEventListener("blur", () => {
+							_renderObsCell(el, el.textContent);
+						});
+					}
 				} else {
 					el.textContent = rk.val;
 					if (editable) {
@@ -337,27 +339,19 @@ function renderTable() {
 			}
 			tr.appendChild(el);
 		}
-		if (!_paperMode && _hasInteractions) {
+		if (showInteractions) {
 			const el = document.createElement("td");
 			el.className = "col-int";
-			el.innerHTML = s.interactions;
+			el.appendChild(
+				new InteractionCell(s.total_a, s.total_q, s.total_h).render(),
+			);
 			tr.appendChild(el);
 		}
 		if (showFollow) {
 			const followEl = document.createElement("td");
 			followEl.className = "col-follow";
 			if (!isNaN(s.followPct)) {
-				const pctEl = document.createElement("span");
-				pctEl.className = "follow-pct";
-				pctEl.textContent = s.followPct.toFixed(1) + "%";
-				const bar = document.createElement("div");
-				bar.className = "follow-bar";
-				const fill = document.createElement("div");
-				fill.className = "follow-bar-fill";
-				fill.style.width = Math.max(0, Math.min(100, s.followPct)) + "%";
-				bar.appendChild(fill);
-				followEl.appendChild(pctEl);
-				followEl.appendChild(bar);
+				followEl.appendChild(new FollowBar(s.followPct).render());
 			}
 			tr.appendChild(followEl);
 		}
@@ -367,76 +361,49 @@ function renderTable() {
 			cell.className = `col-lang col-lang-${def.key}`;
 			const pct = s.langPcts ? s.langPcts[def.key] : undefined;
 			if (pct != null && !isNaN(pct)) {
-				const pctEl = document.createElement("span");
-				pctEl.className = "lang-pct";
-				pctEl.textContent = pct.toFixed(1) + "%";
-				const bar = document.createElement("div");
-				bar.className = "lang-bar";
-				const fill = document.createElement("div");
-				fill.className = "lang-bar-fill";
-				fill.style.width = Math.max(0, Math.min(100, pct)) + "%";
-				bar.appendChild(fill);
-				cell.appendChild(pctEl);
-				cell.appendChild(bar);
+				cell.appendChild(
+					new FollowBar(pct, langColorFor(def.key)).render(),
+				);
 			}
 			tr.appendChild(cell);
 		}
 
 		if (showFp1) {
-			const fpEl = document.createElement("td");
-			fpEl.className = "col-fingerprint col-fp1";
-			if (s._fpMask) {
-				setupTipHtml(
-					fpEl,
-					_boldFpGroups(
-						_maskToBytes(s._fpMask),
-						_bytesLangs(s._fpMaskLangs || []),
-					),
-				);
-			}
-			const wrap = document.createElement("div");
-			wrap.className = "fp-wrap";
-			const bar = document.createElement("div");
-			bar.className = "fp-bar";
-			for (const entry of s._fpPositions || []) {
-				const mark = document.createElement("div");
-				mark.className = "fp-mark lang-" + (entry.lang || "unk");
-				mark.style.left = entry.pos * 100 + "%";
-				bar.appendChild(mark);
-			}
-			wrap.appendChild(bar);
-			fpEl.appendChild(wrap);
-			tr.appendChild(fpEl);
+			tr.appendChild(
+				new FingerprintCell({
+					cls: "col-fp1",
+					tipHtml: s._fpMask
+						? _boldFpGroups(
+								_maskToBytes(s._fpMask),
+								_bytesLangs(s._fpMaskLangs || []),
+							)
+						: null,
+					positions: s._fpPositions || [],
+				}).render(),
+			);
 		}
 		if (showFp2) {
-			const fpEl = document.createElement("td");
-			fpEl.className = "col-fingerprint col-fp2";
-			if (s._fp2Hash) {
-				setupTipHtml(
-					fpEl,
-					_boldFpGroups(s._fp2Hash, _bytesLangs(s._fp2Langs || [])),
-				);
-			}
-			const wrap = document.createElement("div");
-			wrap.className = "fp-wrap";
-			_renderByteFingerprint(wrap, s._fp2Bytes, {
-				langs: s._fp2Langs || [],
-				classPrefix: "fp2",
-			});
-			fpEl.appendChild(wrap);
-			tr.appendChild(fpEl);
+			tr.appendChild(
+				new FingerprintCell({
+					cls: "col-fp2",
+					tipHtml: s._fp2Hash
+						? _boldFpGroups(s._fp2Hash, _bytesLangs(s._fp2Langs || []))
+						: null,
+					bytes: s._fp2Bytes,
+					langs: s._fp2Langs || [],
+					classPrefix: "fp2",
+				}).render(),
+			);
 		}
 		if (showFp3) {
-			const fpEl = document.createElement("td");
-			fpEl.className = "col-fingerprint col-fp3";
-			if (s._fp3Hash) setupTipHtml(fpEl, _boldFpGroups(s._fp3Hash));
-			const wrap = document.createElement("div");
-			wrap.className = "fp-wrap";
-			_renderByteFingerprint(wrap, s._fp3Bytes, {
-				classPrefix: "fp3",
-			});
-			fpEl.appendChild(wrap);
-			tr.appendChild(fpEl);
+			tr.appendChild(
+				new FingerprintCell({
+					cls: "col-fp3",
+					tipHtml: s._fp3Hash ? _boldFpGroups(s._fp3Hash) : null,
+					bytes: s._fp3Bytes,
+					classPrefix: "fp3",
+				}).render(),
+			);
 		}
 
 		if (showMismatches) {
@@ -584,17 +551,14 @@ function _appendTotalsRow(
 	const obsCol = visibleRemarkCols.find((c) => OBS_COL_RE.test(c));
 	let obsCounts = null;
 	if (obsCol) {
-		obsCounts = [];
-		for (const s of sortedStudents) {
-			if (s.ai_flagged) continue;
-			const r = (s.remarks || []).find((x) => x.col === obsCol);
-			if (!r || !r.val) continue;
-			const code = String(r.val).trim();
-			if (!ARTEFACT_CODE_RE.test(code)) continue;
-			for (let i = 0; i < code.length; i++) {
-				obsCounts[i] = (obsCounts[i] || 0) + (code[i] === "1" ? 1 : 0);
-			}
-		}
+		obsCounts = countArtefactColumn(
+			sortedStudents
+				.filter((s) => !s.ai_flagged)
+				.map((s) => {
+					const r = (s.remarks || []).find((x) => x.col === obsCol);
+					return r && r.val ? String(r.val).trim() : "";
+				}),
+		);
 	}
 
 	const mean = (xs) => xs.reduce((a, b) => a + b, 0) / xs.length;
@@ -614,6 +578,19 @@ function _appendTotalsRow(
 	const nonAiCount = sortedStudents.filter((s) => !s.ai_flagged).length;
 	let countSlotAssigned = false;
 	for (const spec of specs) {
+		if (spec.cls.includes("col-int")) {
+			const sums = INTERACTION_TYPES.map((t) =>
+				sortedStudents.reduce(
+					(a, s) => (s.ai_flagged ? a : a + (s[t.key] || 0)),
+					0,
+				),
+			);
+			const c = document.createElement("td");
+			c.className = "col-int";
+			c.appendChild(new InteractionCell(sums[0], sums[1], sums[2]).render());
+			totalsRow.appendChild(c);
+			continue;
+		}
 		const td = document.createElement("td");
 		td.className = spec.cls;
 		const isName = spec.cls.includes("col-name");
@@ -635,17 +612,13 @@ function _appendTotalsRow(
 		} else if (isObs && obsCounts) {
 			td.innerHTML = renderArtefactTotals(obsCounts, _artefactSchema);
 		} else if (isFollow && avgFollow != null) {
-			const pctEl = document.createElement("span");
-			pctEl.className = "follow-pct";
-			pctEl.textContent = avgFollow.toFixed(1) + "%";
-			td.appendChild(pctEl);
+			td.appendChild(new FollowBar(avgFollow).render());
 		} else if (isLang) {
 			const lang = langMatch[1];
 			if (avgByLang[lang] != null) {
-				const pctEl = document.createElement("span");
-				pctEl.className = "lang-pct";
-				pctEl.textContent = avgByLang[lang].toFixed(1) + "%";
-				td.appendChild(pctEl);
+				td.appendChild(
+					new FollowBar(avgByLang[lang], langColorFor(lang)).render(),
+				);
 			}
 		}
 		totalsRow.appendChild(td);
@@ -661,99 +634,27 @@ function _appendTotalsRow(
 }
 
 function renderMismatches(cell, events) {
-	const mismatches = (events || []).filter((ev) => ev.kind !== "normal");
-	if (!mismatches.length) return;
-	mismatches.sort((a, b) => {
-		const ea = a.kind === "extra" ? 1 : 0;
-		const eb = b.kind === "extra" ? 1 : 0;
-		return ea - eb;
-	});
-	const counts = new Map();
-	const order = [];
-	for (const ev of mismatches) {
-		const key = ev.token + "|" + ev.kind;
-		if (!counts.has(key)) {
-			counts.set(key, { ev, n: 0 });
-			order.push(key);
-		}
-		counts.get(key).n++;
-	}
-	const wrap = document.createElement("div");
-	wrap.className = "mismatch-cell";
-	const tipParts = [];
-	for (const key of order) {
-		const { ev, n } = counts.get(key);
-		const color = _mismatchColor(ev);
-		const span = document.createElement("span");
-		span.className = "mismatch-token";
-		if (ev.kind === "extra-star") span.style.opacity = "0.5";
-		span.style.color = color;
-		span.textContent = ev.token + (n > 1 ? "×" + n : "");
-		wrap.appendChild(span);
-		if (order.indexOf(key) < order.length - 1) {
-			const comma = document.createElement("span");
-			comma.textContent = ", ";
-			comma.style.color = THEME.codeMuted;
-			wrap.appendChild(comma);
-		}
-		const esc = escHtml(ev.token);
-		tipParts.push(
-			`<span style="color:${color};font-family:Consolas,monospace;font-weight:bold">${esc}${n > 1 ? "&times;" + n : ""}</span>`,
-		);
-	}
+	const mm = new Mismatches(events);
+	const wrap = mm.cell();
+	if (!wrap) return;
 	cell.innerHTML = "";
 	cell.appendChild(wrap);
-	const tipHtml = tipParts.join(
-		`<span style="color:${THEME.codeMuted}">, </span>`,
-	);
+	const tipHtml = mm.tipHtml();
 	cell.addEventListener("mouseenter", (e) => showTipHtml(e, tipHtml));
 	cell.addEventListener("mousemove", (e) => moveTip(e));
 	cell.addEventListener("mouseleave", () => hideTip());
 }
 
-function _colsPanelOutsideClick(e) {
-	const panel = document.getElementById("cols-panel");
-	const btn = document.getElementById("cols-btn");
-	if (!panel || !btn) return;
-	if (panel.contains(e.target) || btn.contains(e.target)) return;
-	panel.hidden = true;
-	document.removeEventListener("click", _colsPanelOutsideClick, true);
-}
-
-function _renderColsPanel() {
-	const panel = document.getElementById("cols-panel");
-	if (!panel) return;
-	panel.innerHTML = "";
-	for (const { key, label } of COL_HIDE_KEYS) {
-		const lab = document.createElement("label");
-		const cb = document.createElement("input");
-		cb.type = "checkbox";
-		cb.checked = !_hiddenCols.has(key);
-		cb.addEventListener("change", () => {
-			if (cb.checked) _hiddenCols.delete(key);
-			else _hiddenCols.add(key);
-			_saveHiddenCols();
-			renderTable();
-		});
-		lab.appendChild(cb);
-		lab.appendChild(document.createTextNode(" " + label));
-		panel.appendChild(lab);
-	}
-}
-
+const _colsPanel = makeColsPanel({
+	colHideKeys: COL_HIDE_KEYS,
+	hiddenCols: _hiddenCols,
+	onChange: () => {
+		_saveHiddenCols();
+		renderTable();
+	},
+});
 function _toggleColsPanel() {
-	const panel = document.getElementById("cols-panel");
-	if (!panel) return;
-	if (panel.hidden) {
-		_renderColsPanel();
-		panel.hidden = false;
-		setTimeout(() => {
-			document.addEventListener("click", _colsPanelOutsideClick, true);
-		}, 0);
-	} else {
-		panel.hidden = true;
-		document.removeEventListener("click", _colsPanelOutsideClick, true);
-	}
+	_colsPanel.toggle();
 }
 
 function _studentHasFiles(student) {
@@ -793,10 +694,15 @@ function _renderObsCell(el, val) {
 			el.dataset.artefactTipWired = "1";
 		}
 	} else {
-		el.textContent = v;
+		if (_mode === "lesson") {
+			el.innerHTML = formatLessonObsHtml(v);
+			el.style.fontWeight = "";
+		} else {
+			el.textContent = v;
+			el.style.fontWeight = v ? "bold" : "";
+		}
 		delete el.dataset.rawValue;
 		delete el.dataset.artefactTipHtml;
-		el.style.fontWeight = v ? "bold" : "";
 		el.style.color = v.includes("<") ? THEME.red : "";
 		el.title = "";
 	}
@@ -833,7 +739,7 @@ function _renderArtefactCell(el, student, colName, idx, code) {
 	if (_artefactChangedSince(student.id, idx, fired)) {
 		el.classList.add("artefact-changed");
 	}
-	if (!_isReadOnly && student.id) {
+	if (_canEditCells() && student.id) {
 		el.classList.add("artefact-toggle");
 		el.addEventListener("mousedown", (e) => e.stopPropagation());
 		el.addEventListener("click", (e) => {
@@ -892,7 +798,7 @@ function _toggleArtefact(student, colName, idx, el) {
 
 function _makeCellEditable(el, student, colName) {
 	if (!student.id) return;
-	if (_isReadOnly) return;
+	if (!_canEditCells()) return;
 	el.classList.add("editable-cell");
 	el.contentEditable = "plaintext-only";
 	el.spellcheck = false;
@@ -937,9 +843,7 @@ function _makeCellEditable(el, student, colName) {
 }
 
 function _diffTitleFor(student) {
-	const followPct =
-		student.followPct != null ? student.followPct.toFixed(1) + "%" : "N/A";
-	return `${student.id ? student.id + ". " : ""}${student.name} (${followPct})`;
+	return diffStudentTitle(student.id, student.name, student.followPct);
 }
 
 function openDiffForStudent(student) {
